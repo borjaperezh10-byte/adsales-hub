@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AdSales Hub — Paramount</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@300;400;500;600;700&family=Barlow+Condensed:wght@500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <link rel="stylesheet" href="src/style.css" />
+</head>
+<body>
+  <div class="layout">
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <div class="brand-logo">
+          <svg viewBox="0 0 120 40" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Paramount logo">
+            <path d="M14 4C14 4 6 10 6 20C6 28 12 34 20 34C20 34 16 28 18 20C20 12 26 8 26 8L20 4H14Z" fill="#005FFF"/>
+            <path d="M20 4C20 4 28 8 30 20C32 28 28 34 20 34C20 34 24 28 22 20C20 12 14 8 14 8L20 4Z" fill="#98BFFF"/>
+            <path d="M8 16C8 16 2 18 2 24C2 30 8 34 14 34C14 34 10 30 10 24C10 18 14 14 14 14L8 16Z" fill="#005FFF" opacity="0.6"/>
+            <path d="M32 16C32 16 38 18 38 24C38 30 32 34 26 34C26 34 30 30 30 24C30 18 26 14 26 14L32 16Z" fill="#98BFFF" opacity="0.6"/>
+            <text x="46" y="16" font-family="Barlow Condensed, sans-serif" font-weight="700" font-size="13" fill="white" letter-spacing="2">PARAMOUNT</text>
+            <text x="46" y="30" font-family="Barlow Condensed, sans-serif" font-weight="500" font-size="10" fill="#98BFFF" letter-spacing="1">NETWORKS SPAIN</text>
+          </svg>
+        </div>
+        <div class="brand-hub">
+          <span class="hub-label">ADSALES HUB</span>
+          <span class="hub-sub">Spain Market Intelligence</span>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-section-label">General</div>
+        <a class="nav-item active" data-page="home" onclick="navigate('home')">
+          <svg class="nav-icon" viewBox="0 0 20 20" fill="none"><path d="M3 9.5L10 3l7 6.5V17a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M7 18v-6h6v6" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+          <span>Homepage</span>
+        </a>
+
+        <div class="nav-section-label" style="margin-top:1.25rem">Medios</div>
+        <a class="nav-item" data-page="tv" onclick="navigate('tv')">
+          <svg class="nav-icon" viewBox="0 0 20 20" fill="none"><rect x="2" y="4" width="16" height="11" rx="1.5" stroke="currentColor" stroke-width="1.5"/><path d="M7 18h6M10 15v3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          <span>TV Lineal</span>
+        </a>
+        <a class="nav-item" data-page="ctv" onclick="navigate('ctv')">
+          <svg class="nav-icon" viewBox="0 0 20 20" fill="none"><rect x="2" y="4" width="16" height="11" rx="1.5" stroke="currentColor" stroke-width="1.5"/><path d="M7 18h6M10 15v3M7 9.5l4.5-2.5v5L7 9.5z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span>CTV</span>
+        </a>
+        <div class="nav-sub-group" id="ctv-subnav">
+          <a class="nav-sub-item" data-sub="svod" onclick="navigateSub('ctv','svod')">
+            <span class="nav-dot"></span>SVOD
+          </a>
+          <a class="nav-sub-item" data-sub="avod" onclick="navigateSub('ctv','avod')">
+            <span class="nav-dot"></span>AVOD
+          </a>
+          <a class="nav-sub-item" data-sub="bvod" onclick="navigateSub('ctv','bvod')">
+            <span class="nav-dot"></span>BVOD
+          </a>
+          <a class="nav-sub-item" data-sub="fast" onclick="navigateSub('ctv','fast')">
+            <span class="nav-dot"></span>FAST
+          </a>
+          <a class="nav-sub-item" data-sub="pvod" onclick="navigateSub('ctv','pvod')">
+            <span class="nav-dot"></span>PVOD
+          </a>
+        </div>
+
+        <div class="nav-section-label" style="margin-top:1.25rem">Digital</div>
+        <a class="nav-item" data-page="digital" onclick="navigate('digital')">
+          <svg class="nav-icon" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="7" stroke="currentColor" stroke-width="1.5"/><path d="M10 3c0 0-3 3-3 7s3 7 3 7M10 3c0 0 3 3 3 7s-3 7-3 7M3 10h14" stroke="currentColor" stroke-width="1.5"/></svg>
+          <span>Digital</span>
+        </a>
+        <a class="nav-item" data-page="radio" onclick="navigate('radio')">
+          <svg class="nav-icon" viewBox="0 0 20 20" fill="none"><rect x="3" y="8" width="14" height="9" rx="1.5" stroke="currentColor" stroke-width="1.5"/><path d="M6 8V6a4 4 0 018 0v2M8 12.5h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          <span>Radio & Audio</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="last-update-box">
+          <div class="last-update-label">Última actualización</div>
+          <div class="last-update-time" id="sidebar-last-update">—</div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main">
+      <header class="topbar">
+        <div class="topbar-left">
+          <h1 class="page-title" id="page-title">Homepage</h1>
+          <span class="page-breadcrumb" id="page-breadcrumb">Resumen del mercado publicitario español</span>
+        </div>
+        <div class="topbar-right">
+          <div class="update-info" id="update-info">
+            <svg viewBox="0 0 16 16" fill="none" width="14" height="14"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.5"/><path d="M8 5v3.5l2 1.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            <span id="last-update-text">Cargando…</span>
+          </div>
+          <button class="refresh-btn" id="refresh-btn" onclick="refreshData()">
+            <svg id="refresh-icon" viewBox="0 0 16 16" fill="none" width="14" height="14"><path d="M2 8C2 4.7 4.7 2 8 2c2 0 3.8.9 5 2.4M14 8c0 3.3-2.7 6-6 6-2 0-3.8-.9-5-2.4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M12.5 1.5v3h-3M3.5 14.5v-3h3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Actualizar datos
+          </button>
+        </div>
+      </header>
+
+      <div class="content" id="content">
+        <!-- Rendered by JS -->
+      </div>
+    </main>
+  </div>
+
+  <script src="src/data.js"></script>
+  <script src="src/charts.js"></script>
+  <script src="src/pages.js"></script>
+  <script src="src/app.js"></script>
+</body>
+</html>
