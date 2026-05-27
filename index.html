@@ -4,9 +4,49 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>AdSales Hub — Paramount</title>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <style>
 :root {
+  /* ── Paramount Official Brand Colors ── */
+  /* Primary palette */
+  --vista-navy:   #000a3c;   /* Vista Navy   PMS 2768c */
+  --peak-blue:    #0064ff;   /* Peak Blue    PMS 285c  */
+  --snowcap:      #ffffff;   /* Snowcap White          */
+  --mountain-grey:#d9dae2;   /* Mountain Grey PMS 5315c */
+
+  /* Secondary palette (accents) */
+  --horizon:      #ff008a;   /* Horizon      Rhodamine Red */
+  --sunrise:      #ffa600;   /* Sunrise      PMS 1235c */
+  --sky:          #03d1e5;   /* Sky          PMS 3115c */
+
+  /* Aliases for app use */
+  --navy:         var(--vista-navy);
+  --navy-light:   #0a1460;
+  --blue:         var(--peak-blue);
+  --blue-light:   #99c0ff;
+  --pink:         var(--horizon);
+  --gold:         var(--sunrise);
+  --cyan:         var(--sky);
+  --gray:         var(--mountain-grey);
+  --white:        var(--snowcap);
+  --surface:      #f2f3f7;
+  --surface-2:    #e8eaf2;
+  --border:       rgba(0,100,255,0.1);
+  --border-strong:rgba(0,100,255,0.22);
+  --text-primary: #000a3c;
+  --text-secondary:#3a4170;
+  --text-muted:   #7a80a8;
+
+  --sidebar-w: 220px;
+  --topbar-h:  60px;
+  --radius:    10px;
+  --radius-lg: 14px;
+
+  /* ── Paramount Official Typefaces ── */
+  /* Vista Sans Condensed/Semi-Condensed for headlines (fallback: Arial Narrow) */
+  /* Peak Sans for body (fallback: Arial) */
+  --font:           'Peak Sans', 'Arial', 'Helvetica Neue', Helvetica, sans-serif;
+  --font-condensed: 'Vista Sans', 'Arial Narrow', 'Arial', sans-serif;
+}
   --navy: #000A3C;
   --navy-mid: #001060;
   --navy-light: #0A1A6B;
@@ -104,7 +144,7 @@ html, body { height: 100%; font-family: var(--font); background: var(--surface);
   white-space: nowrap;
 }
 .nav-item:hover { background: rgba(0,95,255,0.18); color: var(--white); }
-.nav-item.active { background: var(--blue); color: var(--white); box-shadow: 0 2px 10px rgba(0,95,255,0.35); }
+.nav-item.active { background: var(--peak-blue); color: var(--white); box-shadow: 0 2px 10px rgba(0,95,255,0.35); }
 .nav-icon { width: 16px; height: 16px; flex-shrink: 0; }
 
 .nav-sub-group {
@@ -148,7 +188,7 @@ html, body { height: 100%; font-family: var(--font); background: var(--surface);
 .topbar {
   height: var(--topbar-h);
   background: var(--white);
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1.5px solid var(--border);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -171,7 +211,7 @@ html, body { height: 100%; font-family: var(--font); background: var(--surface);
   cursor: pointer; transition: all 0.15s; white-space: nowrap;
   letter-spacing: 0.2px;
 }
-.refresh-btn:hover { background: var(--blue); }
+.refresh-btn:hover { background: var(--peak-blue); }
 .refresh-btn:active { transform: scale(0.97); }
 .refresh-btn.loading { opacity: 0.7; pointer-events: none; }
 @keyframes spin { to { transform: rotate(360deg); } }
@@ -193,9 +233,9 @@ html, body { height: 100%; font-family: var(--font); background: var(--surface);
   padding: 14px 16px;
 }
 .metric-card .label { font-size: 10px; font-weight: 700; letter-spacing: 0.5px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 5px; }
-.metric-card .value { font-family: var(--font-condensed); font-size: 24px; font-weight: 900; color: var(--navy); line-height: 1; margin-bottom: 3px; }
+.metric-card .value { font-family: var(--font-condensed); font-size: 24px; font-weight: 900; color: var(--vista-navy); line-height: 1; margin-bottom: 3px; }
 .metric-card .delta { font-size: 11px; font-weight: 500; }
-.delta-up { color: #1a7a3c; }
+.delta-up { color: #0a7a40; }
 .delta-down { color: #c0392b; }
 .delta-neutral { color: var(--text-muted); }
 
@@ -207,7 +247,7 @@ html, body { height: 100%; font-family: var(--font); background: var(--surface);
   padding: 16px 18px;
 }
 .chart-card.full { grid-column: 1 / -1; }
-.chart-card .chart-title { font-family: var(--font-condensed); font-size: 13px; font-weight: 900; letter-spacing: 0.3px; color: var(--navy); margin-bottom: 3px; text-transform: uppercase; }
+.chart-card .chart-title { font-family: var(--font-condensed); font-size: 13px; font-weight: 900; letter-spacing: 0.3px; color: var(--vista-navy); margin-bottom: 3px; text-transform: uppercase; }
 .chart-card .chart-sub { font-size: 11px; color: var(--text-muted); margin-bottom: 10px; }
 
 .legend { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 8px; font-size: 11px; color: var(--text-secondary); }
@@ -283,18 +323,840 @@ html, body { height: 100%; font-family: var(--font); background: var(--surface);
   .charts-row { grid-template-columns: 1fr; }
   .chart-card.full { grid-column: auto; }
 }
+
 </style>
 </head>
 <body>
 <div class="layout">
   <aside class="sidebar">
-                <div class="sidebar-brand">
-      <div class="brand-logo">
-        <img src="data:image/png;base64,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" alt="Paramount" style="width:140px;height:auto;display:block;filter:brightness(0) invert(1);margin-bottom:14px;" />
+    <div class="sidebar-brand">
+      <div class="brand-logo"><svg viewBox="0 0 200 72" xmlns="http://www.w3.org/2000/svg" style="width:170px;height:auto;display:block;margin-bottom:16px" aria-label="Paramount — A Skydance Corporation">
+  <!-- Stars arc -->
+  <g transform="translate(33,4)">
+    <circle cx="0"  cy="14" r="1.5" fill="white"/>
+    <circle cx="5"  cy="7"  r="1.5" fill="white"/>
+    <circle cx="13" cy="2"  r="1.5" fill="white"/>
+    <circle cx="22" cy="0"  r="1.5" fill="white"/>
+    <circle cx="31" cy="1"  r="1.5" fill="white"/>
+    <circle cx="39" cy="5"  r="1.5" fill="white"/>
+    <circle cx="44" cy="12" r="1.5" fill="white"/>
+    <!-- Mountain -->
+    <path d="M2 32 L22 6 L42 32 Z" fill="white" opacity="0.15"/>
+    <path d="M2 32 L22 6 L42 32" fill="none" stroke="white" stroke-width="2" stroke-linejoin="round"/>
+    <path d="M12 32 L22 16 L32 32" fill="white" opacity="0.4"/>
+    <!-- Base line -->
+    <line x1="0" y1="32" x2="44" y2="32" stroke="white" stroke-width="1.5" opacity="0.7"/>
+  </g>
+  <!-- Paramount script wordmark -->
+  <text x="100" y="38"
+    font-family="Georgia, 'Times New Roman', serif"
+    font-size="28" font-weight="700" font-style="italic"
+    fill="white" text-anchor="middle" letter-spacing="-0.5">Paramount</text>
+  <!-- Divider -->
+  <line x1="18" y1="44" x2="182" y2="44" stroke="white" stroke-width="0.7" opacity="0.4"/>
+  <!-- A SKYDANCE CORPORATION -->
+  <text x="100" y="58"
+    font-family="'Arial Narrow', Arial, sans-serif"
+    font-size="8" font-weight="400"
+    fill="white" text-anchor="middle" letter-spacing="2.5" opacity="0.75">A SKYDANCE CORPORATION</text>
+</svg></div>
       </div>
       <div class="brand-hub">
         <span class="hub-label">ADSALES HUB</span>
         <span class="hub-sub">Spain Market Intelligence</span>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">General</div>
+      <a class="nav-item active" data-page="home" onclick="navigate('home')">
+        <svg class="nav-icon" viewBox="0 0 20 20" fill="none"><path d="M3 9.5L10 3l7 6.5V17a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M7 18v-6h6v6" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+        <span>Homepage</span>
+      </a>
+      <div class="nav-section-label" style="margin-top:1.25rem">Medios</div>
+      <a class="nav-item" data-page="tv" onclick="navigate('tv')">
+        <svg class="nav-icon" viewBox="0 0 20 20" fill="none"><rect x="2" y="4" width="16" height="11" rx="1.5" stroke="currentColor" stroke-width="1.5"/><path d="M7 18h6M10 15v3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        <span>TV Lineal</span>
+      </a>
+      <a class="nav-item" data-page="ctv" onclick="navigate('ctv')">
+        <svg class="nav-icon" viewBox="0 0 20 20" fill="none"><rect x="2" y="4" width="16" height="11" rx="1.5" stroke="currentColor" stroke-width="1.5"/><path d="M7 18h6M10 15v3M7 9.5l4.5-2.5v5L7 9.5z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span>CTV</span>
+      </a>
+      <div class="nav-sub-group" id="ctv-subnav">
+        <a class="nav-sub-item" data-sub="svod" onclick="navigateSub('ctv','svod')"><span class="nav-dot"></span>SVOD</a>
+        <a class="nav-sub-item" data-sub="avod" onclick="navigateSub('ctv','avod')"><span class="nav-dot"></span>AVOD</a>
+        <a class="nav-sub-item" data-sub="bvod" onclick="navigateSub('ctv','bvod')"><span class="nav-dot"></span>BVOD</a>
+        <a class="nav-sub-item" data-sub="fast" onclick="navigateSub('ctv','fast')"><span class="nav-dot"></span>FAST</a>
+        <a class="nav-sub-item" data-sub="pvod" onclick="navigateSub('ctv','pvod')"><span class="nav-dot"></span>PVOD</a>
+      </div>
+      <div class="nav-section-label" style="margin-top:1.25rem">Digital</div>
+      <a class="nav-item" data-page="digital" onclick="navigate('digital')">
+        <svg class="nav-icon" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="7" stroke="currentColor" stroke-width="1.5"/><path d="M10 3c0 0-3 3-3 7s3 7 3 7M10 3c0 0 3 3 3 7s-3 7-3 7M3 10h14" stroke="currentColor" stroke-width="1.5"/></svg>
+        <span>Digital</span>
+      </a>
+      <a class="nav-item" data-page="radio" onclick="navigate('radio')">
+        <svg class="nav-icon" viewBox="0 0 20 20" fill="none"><rect x="3" y="8" width="14" height="9" rx="1.5" stroke="currentColor" stroke-width="1.5"/><path d="M6 8V6a4 4 0 018 0v2M8 12.5h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        <span>Radio &amp; Audio</span>
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="last-update-box">
+        <div class="last-update-label">Última actualización</div>
+        <div class="last-update-time" id="sidebar-last-update">—</div>
+      </div>
+    </div>
+  </aside>
+  <main class="main">
+    <header class="topbar">
+      <div class="topbar-left">
+        <h1 class="page-title" id="page-title">Homepage</h1>
+        <span class="page-breadcrumb" id="page-breadcrumb">Resumen del mercado publicitario español</span>
+      </div>
+      <div class="topbar-right">
+        <div class="update-info">
+          <svg viewBox="0 0 16 16" fill="none" width="14" height="14"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.5"/><path d="M8 5v3.5l2 1.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          <span id="last-update-text">Cargando…</span>
+        </div>
+        <button class="refresh-btn" id="refresh-btn" onclick="refreshData()">
+          <svg id="refresh-icon" viewBox="0 0 16 16" fill="none" width="14" height="14"><path d="M2 8C2 4.7 4.7 2 8 2c2 0 3.8.9 5 2.4M14 8c0 3.3-2.7 6-6 6-2 0-3.8-.9-5-2.4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M12.5 1.5v3h-3M3.5 14.5v-3h3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Actualizar datos
+        </button>
+      </div>
+    </header>
+    <div class="content" id="content"></div>
+  </main>
+</div>
+<script>
+
+// Polyfill: roundRect → rect fallback for older Chrome
+if (!CanvasRenderingContext2D.prototype.roundRect) {
+  CanvasRenderingContext2D.prototype.roundRect = function(x, y, w, h, r) {
+    this.rect(x, y, w, h);
+    return this;
+  };
+}
+
+// MiniChart — lightweight Chart.js-compatible canvas renderer
+// Supports: bar (incl. horizontal indexAxis:'y', stacked), line, doughnut
+(function(global){
+'use strict';
+const PR = 1; // pixel ratio
+
+function hexAlpha(hex, a){ // apply opacity to hex color string like #aabbcc or #aabbccdd
+  const h = hex.replace('#','');
+  const r=parseInt(h.slice(0,2),16), g=parseInt(h.slice(2,4),16), b=parseInt(h.slice(4,6),16);
+  return `rgba(${r},${g},${b},${a})`;
+}
+function colorAlpha(c, a){ // handle rgba() or hex
+  if(!c) return `rgba(0,0,0,${a})`;
+  if(c.startsWith('rgba')) return c.replace(/[\d.]+\)$/,`${a})`);
+  if(c.startsWith('rgb(')) return c.replace('rgb(','rgba(').replace(')',`,${a})`);
+  if(c.startsWith('#')) return hexAlpha(c,a);
+  return c;
+}
+
+function getCanvas(id){ return typeof id==='string' ? document.getElementById(id) : id; }
+
+function setupCanvas(canvas){
+  const parent = canvas.parentElement;
+  const w = (parent && parent.clientWidth > 10) ? parent.clientWidth : 400;
+  const h = (parent && parent.clientHeight > 10) ? parent.clientHeight : 250;
+  canvas.width = w; canvas.height = h;
+  canvas.style.width = w+'px'; canvas.style.height = h+'px';
+  return canvas.getContext('2d');
+}
+
+const PAD = {top:16, right:16, bottom:36, left:56};
+
+function Chart(canvasOrId, config){
+  this.canvas = getCanvas(canvasOrId);
+  this.config = config;
+  this._draw();
+}
+Chart.prototype.destroy = function(){ 
+  if(this.canvas){ const ctx=this.canvas.getContext('2d'); ctx.clearRect(0,0,this.canvas.width,this.canvas.height); }
+};
+Chart.prototype._draw = function(){
+  const cfg = this.config;
+  const type = cfg.type;
+  if(type==='bar') this._drawBar();
+  else if(type==='line') this._drawLine();
+  else if(type==='doughnut') this._drawDoughnut();
+};
+
+// ── BAR ──────────────────────────────────────────────────────────────────────
+Chart.prototype._drawBar = function(){
+  const cfg = this.config;
+  const opts = cfg.options||{};
+  const horiz = opts.indexAxis === 'y';
+  const stacked = (opts.scales&&opts.scales.x&&opts.scales.x.stacked)||false;
+  const datasets = cfg.data.datasets;
+  const labels = cfg.data.labels;
+
+  const ctx = setupCanvas(this.canvas);
+  const W = this.canvas.width, H = this.canvas.height;
+
+  // measure labels
+  ctx.font = '11px Arial,sans-serif';
+  let maxLabelW = 0;
+  labels.forEach(l=>{ const m=ctx.measureText(String(l)).width; if(m>maxLabelW) maxLabelW=m; });
+
+  const pad = {
+    top: 16,
+    right: 16,
+    bottom: horiz ? 36 : 48,
+    left: horiz ? maxLabelW+10 : 52
+  };
+
+  const plotW = W - pad.left - pad.right;
+  const plotH = H - pad.top - pad.bottom;
+
+  // compute value range
+  const yFmt = (opts.scales&&opts.scales.y&&opts.scales.y.ticks&&opts.scales.y.ticks.callback) || (v=>v);
+  const xFmt = (opts.scales&&opts.scales.x&&opts.scales.x.ticks&&opts.scales.x.ticks.callback) || (v=>v);
+
+  let allVals = [];
+  if(stacked){
+    const sums = labels.map((_,i)=>datasets.reduce((s,d)=>s+(d.data[i]||0),0));
+    allVals = sums;
+  } else {
+    datasets.forEach(d=>d.data.forEach(v=>allVals.push(v)));
+  }
+  const minCfg = horiz ? (opts.scales&&opts.scales.x&&opts.scales.x.min) : (opts.scales&&opts.scales.y&&opts.scales.y.min);
+  const rawMin = Math.min(minCfg!=null?minCfg:0, ...allVals);
+  const rawMax = Math.max(...allVals);
+  const vMin = rawMin < 0 ? rawMin : (minCfg!=null ? minCfg : 0);
+  const vMax = rawMax * 1.08 || 1;
+  const vRange = vMax - vMin;
+
+  function toPixel(v){
+    return horiz
+      ? pad.left + (v - vMin)/vRange * plotW
+      : pad.top + plotH - (v - vMin)/vRange * plotH;
+  }
+  const zeroLine = toPixel(0);
+
+  // grid lines
+  ctx.strokeStyle = 'rgba(0,10,60,0.07)';
+  ctx.lineWidth = 0.5;
+  const ticks = 5;
+  for(let i=0;i<=ticks;i++){
+    const v = vMin + i/ticks*vRange;
+    if(horiz){
+      const x = toPixel(v);
+      ctx.beginPath(); ctx.moveTo(x,pad.top); ctx.lineTo(x,pad.top+plotH); ctx.stroke();
+      ctx.fillStyle='rgba(74,81,120,0.85)'; ctx.font='10px Arial,sans-serif'; ctx.textAlign='center';
+      ctx.fillText(xFmt(Math.round(v*10)/10), x, H-pad.bottom+14);
+    } else {
+      const y = toPixel(v);
+      ctx.beginPath(); ctx.moveTo(pad.left,y); ctx.lineTo(pad.left+plotW,y); ctx.stroke();
+      ctx.fillStyle='rgba(74,81,120,0.85)'; ctx.font='10px Arial,sans-serif'; ctx.textAlign='right';
+      ctx.fillText(yFmt(Math.round(v*10)/10), pad.left-6, y+3.5);
+    }
+  }
+
+  // bars
+  const n = labels.length;
+  const groupW = horiz ? plotH/n : plotW/n;
+  const barPad = groupW*0.18;
+  const nds = datasets.length;
+
+  if(stacked){
+    labels.forEach((lbl,i)=>{
+      let base = 0;
+      datasets.forEach((ds,di)=>{
+        const v = ds.data[i]||0;
+        const color = Array.isArray(ds.backgroundColor)?ds.backgroundColor[di]||ds.backgroundColor[0]:ds.backgroundColor;
+        ctx.fillStyle = color || '#005FFF';
+        if(horiz){
+          const y0 = pad.top + i*groupW + barPad;
+          const bH = groupW - barPad*2;
+          const x0 = toPixel(base);
+          const bW = toPixel(base+v) - x0;
+          ctx.beginPath(); ctx.rect(x0, y0, bW, bH, 3); ctx.fill();
+        } else {
+          const x0 = pad.left + i*groupW + barPad;
+          const bW = groupW - barPad*2;
+          const y0 = toPixel(base+v);
+          const bH = toPixel(base) - y0;
+          ctx.beginPath(); ctx.rect(x0, y0, bW, bH, 3); ctx.fill();
+        }
+        base += v;
+      });
+    });
+  } else {
+    const bW2 = (groupW - barPad*2) / nds;
+    labels.forEach((lbl,i)=>{
+      datasets.forEach((ds,di)=>{
+        const v = ds.data[i]||0;
+        const color = Array.isArray(ds.backgroundColor)?ds.backgroundColor[i]||ds.backgroundColor[0]:ds.backgroundColor;
+        ctx.fillStyle = color || '#005FFF';
+        if(horiz){
+          const y0 = pad.top + i*groupW + barPad + di*bW2;
+          const bH = bW2*0.9;
+          const x0 = v>=0 ? zeroLine : toPixel(v);
+          const bW = Math.abs(toPixel(v) - zeroLine);
+          ctx.beginPath(); ctx.rect(x0, y0, bW, bH, 3); ctx.fill();
+        } else {
+          const x0 = pad.left + i*groupW + barPad + di*bW2;
+          const bW = bW2*0.9;
+          const y0 = v>=0 ? toPixel(v) : zeroLine;
+          const bH = Math.abs(toPixel(v) - zeroLine);
+          ctx.beginPath(); ctx.rect(x0, y0, bW, bH, 3); ctx.fill();
+        }
+      });
+    });
+  }
+
+  // axis labels (category)
+  ctx.fillStyle='rgba(74,81,120,0.9)'; ctx.font='10px Arial,sans-serif';
+  labels.forEach((lbl,i)=>{
+    const mid = (i+0.5)*groupW;
+    if(horiz){
+      ctx.textAlign='right'; ctx.textBaseline='middle';
+      ctx.fillText(String(lbl), pad.left-6, pad.top+mid);
+    } else {
+      ctx.textAlign='center'; ctx.textBaseline='top';
+      const txt = String(lbl);
+      ctx.fillText(txt.length>12?txt.slice(0,11)+'…':txt, pad.left+mid, H-pad.bottom+4);
+    }
+  });
+
+  // zero line
+  ctx.strokeStyle='rgba(0,10,60,0.2)'; ctx.lineWidth=1;
+  ctx.beginPath();
+  if(horiz){ ctx.moveTo(zeroLine,pad.top); ctx.lineTo(zeroLine,pad.top+plotH); }
+  else { ctx.moveTo(pad.left,zeroLine); ctx.lineTo(pad.left+plotW,zeroLine); }
+  ctx.stroke();
+};
+
+// ── LINE ─────────────────────────────────────────────────────────────────────
+Chart.prototype._drawLine = function(){
+  const cfg = this.config;
+  const opts = cfg.options||{};
+  const datasets = cfg.data.datasets;
+  const labels = cfg.data.labels;
+  const ctx = setupCanvas(this.canvas);
+  const W=this.canvas.width, H=this.canvas.height;
+  const yFmt=(opts.scales&&opts.scales.y&&opts.scales.y.ticks&&opts.scales.y.ticks.callback)||(v=>v);
+  const pad={top:16,right:20,bottom:36,left:52};
+  const plotW=W-pad.left-pad.right, plotH=H-pad.top-pad.bottom;
+
+  let allVals=[]; datasets.forEach(d=>d.data.filter(v=>v!=null).forEach(v=>allVals.push(v)));
+  const minCfg=(opts.scales&&opts.scales.y&&opts.scales.y.min);
+  const maxCfg=(opts.scales&&opts.scales.y&&opts.scales.y.max);
+  const vMin=minCfg!=null?minCfg:Math.min(...allVals)*0.97;
+  const vMax=maxCfg!=null?maxCfg:Math.max(...allVals)*1.03;
+  const vRange=vMax-vMin||1;
+
+  const n=labels.length;
+  function px(i){ return pad.left + i/(n-1)*plotW; }
+  function py(v){ return pad.top + plotH - (v-vMin)/vRange*plotH; }
+
+  // grid
+  ctx.strokeStyle='rgba(0,10,60,0.07)'; ctx.lineWidth=0.5;
+  for(let i=0;i<=5;i++){
+    const v=vMin+i/5*vRange;
+    const y=py(v);
+    ctx.beginPath(); ctx.moveTo(pad.left,y); ctx.lineTo(pad.left+plotW,y); ctx.stroke();
+    ctx.fillStyle='rgba(74,81,120,0.85)'; ctx.font='10px Arial,sans-serif'; ctx.textAlign='right';
+    ctx.fillText(yFmt(Math.round(v*10)/10),pad.left-6,y+3.5);
+  }
+
+  // x labels
+  ctx.fillStyle='rgba(74,81,120,0.9)'; ctx.font='10px Arial,sans-serif'; ctx.textAlign='center';
+  labels.forEach((l,i)=>ctx.fillText(String(l),px(i),H-pad.bottom+14));
+
+  // datasets
+  datasets.forEach(ds=>{
+    const color=ds.borderColor||'#005FFF';
+    const fill=ds.fill;
+    const fillColor=ds.backgroundColor||colorAlpha(color,0.12);
+    const tension=ds.tension||0;
+    const pts=ds.data.map((v,i)=>v!=null?{x:px(i),y:py(v)}:null).filter(Boolean);
+    if(pts.length<2) return;
+
+    if(fill){
+      ctx.beginPath();
+      ctx.moveTo(pts[0].x,py(vMin));
+      pts.forEach(p=>ctx.lineTo(p.x,p.y));
+      ctx.lineTo(pts[pts.length-1].x,py(vMin));
+      ctx.closePath();
+      ctx.fillStyle=fillColor; ctx.fill();
+    }
+
+    ctx.beginPath(); ctx.moveTo(pts[0].x,pts[0].y);
+    for(let i=1;i<pts.length;i++){
+      if(tension>0){
+        const cp1x=pts[i-1].x+(pts[i].x-pts[i-1].x)*0.4;
+        const cp1y=pts[i-1].y;
+        const cp2x=pts[i].x-(pts[i].x-pts[i-1].x)*0.4;
+        const cp2y=pts[i].y;
+        ctx.bezierCurveTo(cp1x,cp1y,cp2x,cp2y,pts[i].x,pts[i].y);
+      } else { ctx.lineTo(pts[i].x,pts[i].y); }
+    }
+    ctx.strokeStyle=color; ctx.lineWidth=2; ctx.stroke();
+
+    // dots
+    const dotColor=ds.pointBackgroundColor||color;
+    const dotR=ds.pointRadius||4;
+    pts.forEach(p=>{
+      ctx.beginPath(); ctx.arc(p.x,p.y,dotR,0,Math.PI*2);
+      ctx.fillStyle=dotColor; ctx.fill();
+      ctx.strokeStyle='#fff'; ctx.lineWidth=1.5; ctx.stroke();
+    });
+  });
+};
+
+// ── DOUGHNUT ─────────────────────────────────────────────────────────────────
+Chart.prototype._drawDoughnut = function(){
+  const cfg=this.config;
+  const opts=cfg.options||{};
+  const data=cfg.data.datasets[0].data;
+  const colors=cfg.data.datasets[0].backgroundColor||[];
+  const ctx=setupCanvas(this.canvas);
+  const W=this.canvas.width, H=this.canvas.height;
+  const cx=W/2, cy=H/2;
+  const outerR=Math.min(W,H)*0.42;
+  const cutout=parseFloat(opts.cutout)||60;
+  const innerR=outerR*(cutout/100);
+  const total=data.reduce((a,b)=>a+b,0);
+  let angle=-Math.PI/2;
+  const borderW=cfg.data.datasets[0].borderWidth||2;
+  data.forEach((v,i)=>{
+    const sweep=v/total*Math.PI*2;
+    ctx.beginPath();
+    ctx.moveTo(cx+innerR*Math.cos(angle),cy+innerR*Math.sin(angle));
+    ctx.arc(cx,cy,outerR,angle,angle+sweep);
+    ctx.arc(cx,cy,innerR,angle+sweep,angle,true);
+    ctx.closePath();
+    ctx.fillStyle=colors[i]||'#ccc'; ctx.fill();
+    ctx.strokeStyle='#fff'; ctx.lineWidth=borderW; ctx.stroke();
+    angle+=sweep;
+  });
+};
+
+global.Chart=Chart;
+})(window);
+
+// ─── ALL DATA FOR SPAIN ADVERTISING MARKET ───────────────────────────────────
+
+const DATA = {
+  lastUpdate: null,
+
+  // ── HOMEPAGE ──────────────────────────────────────────────────────────────
+  homepage: {
+    metrics: [
+      { label: 'Inversión total 2025e', value: '17.400 M€', delta: '+4,2% vs 2024', up: true },
+      { label: 'Cuota digital', value: '52%', delta: '+3pp vs 2024', up: true },
+      { label: 'CPM medio digital', value: '3,80€', delta: '-0,4% vs 2024', up: false },
+      { label: 'Ad fraud rate (ES)', value: '9,8%', delta: '-0,9pp', up: true },
+      { label: 'Viewability media', value: '61%', delta: '+1,8pp', up: true },
+      { label: 'Penetración internet', value: '94%', delta: '+1pp', up: true },
+    ],
+    inversionAnual: {
+      labels: ['2019', '2020', '2021', '2022', '2023', '2024', '2025e'],
+      data: [13200, 11100, 13800, 15100, 15900, 16700, 17400],
+    },
+    cuotaPorMedio: {
+      labels: ['Digital', 'TV', 'Exterior', 'Radio', 'Prensa', 'Revistas', 'Cine'],
+      data: [52, 26, 8, 7, 4, 2, 1],
+      colors: ['#005FFF', '#D85A30', '#1D9E75', '#BA7517', '#888780', '#7F77DD', '#D4537E'],
+    },
+    crecimientoYoY: {
+      labels: ['Digital', 'Exterior', 'Radio', 'TV', 'Prensa'],
+      data: [10, 9, 4, -1, -5],
+    },
+    digitalDesglose: {
+      labels: ['Search', 'Social', 'Display', 'Vídeo', 'Otros'],
+      data: [38, 29, 16, 13, 4],
+      colors: ['#005FFF', '#D4537E', '#7F77DD', '#D85A30', '#888780'],
+    },
+    noticias: [
+      { src: 'Infoadex', date: 'May 2025', h: 'La inversión publicitaria en España crece un 4,2% hasta superar los 17.000 M€', tag: 'Inversión', tc: 'bg' },
+      { src: 'IAB Spain', date: 'May 2025', h: 'El mobile ya supone el 68% de la inversión digital en España según estudio de IAB', tag: 'Digital', tc: 'bb' },
+      { src: 'Kantar Media', date: 'Abr 2025', h: 'La televisión lineal pierde un punto de cuota pero mantiene el liderazgo en recall publicitario', tag: 'TV', tc: 'ba' },
+      { src: 'AIMC', date: 'Abr 2025', h: 'El EGM confirma que el podcast en español crece un 22% en audiencia acumulada mensual', tag: 'Audio', tc: 'bg' },
+    ],
+  },
+
+  // ── TV LINEAL ──────────────────────────────────────────────────────────────
+  tv: {
+    metrics: [
+      { label: 'Inversión TV lineal 2024', value: '1.980 M€', delta: '-3,4% vs 2023', up: false },
+      { label: 'Share s/total medios', value: '26%', delta: '-2pp vs 2023', up: false },
+      { label: 'CPM medio TV', value: '7€', delta: 'referencia base', up: true },
+      { label: 'GRP medio campaña', value: '350', delta: 'campañas nacionales', up: true },
+      { label: 'Cobertura neta ≥1', value: '82%', delta: 'campaña 30 días', up: true },
+      { label: 'Recall publicitario', value: '34%', delta: '+2pp vs digital', up: true },
+    ],
+    inversionHistorica: {
+      labels: ['2019', '2020', '2021', '2022', '2023', '2024'],
+      data: [2280, 1900, 2050, 2100, 2050, 1980],
+    },
+    cuotaPorCadena: {
+      labels: ['Antena 3', 'Telecinco', 'La Sexta', 'Cuatro', 'RTVE', 'Temáticas'],
+      data: [27, 24, 16, 12, 8, 13],
+      colors: ['#005FFF', '#D85A30', '#1D9E75', '#7F77DD', '#BA7517', '#888780'],
+    },
+    cpmPorFormato: {
+      labels: ['Especial (60s)', 'Estándar (20s)', 'Patrocinio', 'Micros (10s)', 'Telepromoción', 'Microespacio'],
+      data: [22, 7, 15, 4, 12, 9],
+    },
+    audienciaFranja: {
+      labels: ['Madrugada', 'Mañana', 'Mediodía', 'Sobremesa', 'Tarde', 'Access', 'Prime', 'Late night'],
+      data: [4, 12, 18, 22, 16, 24, 30, 10],
+    },
+    top_anunciantes: [
+      { name: 'El Corte Inglés', sector: 'Retail', inv: '~95M€', grps: 1850, trend: 'stable' },
+      { name: 'Procter & Gamble', sector: 'Gran consumo', inv: '~88M€', grps: 2100, trend: 'up' },
+      { name: 'Telefónica', sector: 'Telecom', inv: '~76M€', grps: 1640, trend: 'down' },
+      { name: 'Volkswagen Group', sector: 'Automoción', inv: '~72M€', grps: 1520, trend: 'stable' },
+      { name: 'L\'Oréal', sector: 'Belleza', inv: '~65M€', grps: 1380, trend: 'up' },
+      { name: 'Renault', sector: 'Automoción', inv: '~58M€', grps: 1240, trend: 'up' },
+    ],
+  },
+
+  // ── CTV OVERVIEW ──────────────────────────────────────────────────────────
+  ctv: {
+    metrics: [
+      { label: 'Inversión CTV 2024', value: '420 M€', delta: '+44,8% vs 2023', up: true },
+      { label: 'Cuota s/total pantalla', value: '17,5%', delta: '+5,5pp vs 2023', up: true },
+      { label: 'CPM medio CTV', value: '12€', delta: '+71% vs TV lineal', up: true },
+      { label: 'Completion rate vídeo', value: '88%', delta: '+22pp vs mobile', up: true },
+      { label: 'Hogares con Smart TV', value: '73%', delta: '+5pp vs 2023', up: true },
+      { label: 'Viewability CTV', value: '94%', delta: 'vs 61% digital', up: true },
+    ],
+    inversionHistorica: {
+      labels: ['2020', '2021', '2022', '2023', '2024'],
+      tvLineal: [1900, 2050, 2100, 2050, 1980],
+      ctv: [60, 105, 185, 290, 420],
+    },
+    cuotaTipo: {
+      labels: ['AVOD', 'BVOD', 'FAST', 'SVOD ads', 'PVOD'],
+      data: [38, 27, 18, 12, 5],
+      colors: ['#005FFF', '#D85A30', '#1D9E75', '#7F77DD', '#BA7517'],
+    },
+    cpmPorTipo: {
+      labels: ['TV lineal', 'BVOD', 'SVOD ads', 'PVOD', 'AVOD', 'FAST'],
+      data: [7, 18, 16, 14, 11, 8],
+      colors: ['#888780', '#D85A30', '#7F77DD', '#BA7517', '#005FFF', '#1D9E75'],
+    },
+    shareEvolucion: {
+      labels: ['2020', '2021', '2022', '2023', '2024'],
+      data: [3, 5, 8, 12, 17],
+    },
+  },
+
+  // ── CTV TIPOS ─────────────────────────────────────────────────────────────
+  tipos: {
+    SVOD: {
+      color: '#7F77DD', bg: '#EEEDFE', tc: '#3C3489',
+      label: 'SVOD con publicidad',
+      invTotal: 50,
+      desc: 'Plataformas de suscripción con tier publicitario a menor precio. Audiencia premium de alta intención. En España el tier ad crece rápidamente con Netflix y Prime Video liderando.',
+      plataformas: [
+        { name: 'Netflix Ads', alcance: '55%', hogares: 8.2, inv: 30, cuota: 60, cpm: 16, cpmMin: 13, cpmMax: 20, usuarios: '4,5M suscriptores ad-tier', trend: 'up', nota: 'Lanzado en ES en Nov 2022. Viewability >90%. Formatos: pre-roll 15/30s, mid-roll.' },
+        { name: 'Prime Video Ads', alcance: '48%', hogares: 7.1, inv: 20, cuota: 40, cpm: 14, cpmMin: 11, cpmMax: 18, usuarios: '3,8M suscriptores', trend: 'up', nota: 'Amazon introdujo ads en ES en Q1 2024. Integración con Amazon retail data para targeting preciso.' },
+      ],
+    },
+    AVOD: {
+      color: '#005FFF', bg: '#E6F1FB', tc: '#0C447C',
+      label: 'AVOD',
+      invTotal: 160,
+      desc: 'Contenido de vídeo bajo demanda gratuito financiado por publicidad. Mayor escala de audiencia. YouTube domina ampliamente; Pluto TV y Tubi crecen con catálogo local.',
+      plataformas: [
+        { name: 'YouTube', alcance: '72%', hogares: 12.0, inv: 80, cuota: 50, cpm: 11, cpmMin: 7, cpmMax: 15, usuarios: '34M usuarios/mes', trend: 'stable', nota: 'Líder absoluto. CTV (pantalla TV) ya supone el 35% del consumo total en ES. Formatos: skippable, non-skippable, bumper.' },
+        { name: 'Pluto TV', alcance: '18%', hogares: 2.8, inv: 40, cuota: 25, cpm: 9, cpmMin: 6, cpmMax: 13, usuarios: '2,1M usuarios/mes', trend: 'up', nota: 'Paramount Global. Crece con catálogo local y canales lineales temáticos. Sinergia con Paramount+.' },
+        { name: 'Tubi (Fox)', alcance: '9%', hogares: 1.4, inv: 22, cuota: 14, cpm: 8, cpmMin: 5, cpmMax: 11, usuarios: '900K usuarios/mes', trend: 'up', nota: 'Entrada reciente en ES. Fuerte en contenido de catálogo y licencias internacionales.' },
+        { name: 'Otros AVOD', alcance: '6%', hogares: 0.9, inv: 18, cuota: 11, cpm: 7, cpmMin: 4, cpmMax: 10, usuarios: 'Diversas apps', trend: 'stable', nota: 'Incluye apps de cadenas internacionales y plataformas de nicho cultural.' },
+      ],
+    },
+    BVOD: {
+      color: '#D85A30', bg: '#FAECE7', tc: '#712B13',
+      label: 'BVOD',
+      invTotal: 113,
+      desc: 'Broadcaster VOD — plataformas digitales de las cadenas españolas. Contenido premium de alta notoriedad con publicidad. Fuerte recall y alta afinidad con el espectador TV.',
+      plataformas: [
+        { name: 'Atresplayer', alcance: '41%', hogares: 6.8, inv: 55, cuota: 49, cpm: 18, cpmMin: 14, cpmMax: 22, usuarios: '5,2M usuarios/mes', trend: 'up', nota: 'Antena 3, La Sexta. Catch-up + contenido exclusivo. Líder BVOD en ES. CPM premium justificado por audiencia TV fiel.' },
+        { name: 'Mitele', alcance: '35%', hogares: 5.8, inv: 28, cuota: 25, cpm: 17, cpmMin: 13, cpmMax: 21, usuarios: '4,4M usuarios/mes', trend: 'stable', nota: 'Telecinco, Cuatro (Mediaset). Fuerte en entretenimiento masivo y reality. Gran volumen de GRPs digitales.' },
+        { name: 'RTVE Play', alcance: '38%', hogares: 6.3, inv: 20, cuota: 18, cpm: 10, cpmMin: 7, cpmMax: 13, usuarios: '4,8M usuarios/mes', trend: 'up', nota: 'Plataforma pública. Sin suscripción. CPM más bajo por política de servicio público. Alta confianza de marca.' },
+        { name: 'TV autonómicas', alcance: '22%', hogares: 3.6, inv: 10, cuota: 9, cpm: 9, cpmMin: 6, cpmMax: 12, usuarios: 'Suma 3Cat, À Punt, ETB...', trend: 'stable', nota: 'Audiencias localizadas de alto valor para campañas regionales o con targeting geográfico.' },
+      ],
+    },
+    FAST: {
+      color: '#1D9E75', bg: '#E1F5EE', tc: '#085041',
+      label: 'FAST',
+      invTotal: 76,
+      desc: 'Free Ad-Supported Streaming TV — canales lineales gratuitos en Smart TVs. Sin suscripción ni registro. Integrados nativamente en fabricantes de TV. Modelo de rápido crecimiento en España.',
+      plataformas: [
+        { name: 'Samsung TV Plus', alcance: '22%', hogares: 3.6, inv: 35, cuota: 46, cpm: 8, cpmMin: 5, cpmMax: 11, usuarios: '2,7M activos/mes', trend: 'up', nota: 'Integrado en todos los Smart TVs Samsung. +70 canales en ES. Crece con la base instalada de televisores.' },
+        { name: 'LG Channels', alcance: '17%', hogares: 2.8, inv: 22, cuota: 29, cpm: 8, cpmMin: 5, cpmMax: 10, usuarios: '2,1M activos/mes', trend: 'up', nota: 'LG WebOS. Similar a Samsung TV Plus. Crecimiento paralelo a ventas de TV LG en España.' },
+        { name: 'Rakuten TV (FAST)', alcance: '10%', hogares: 1.6, inv: 12, cuota: 16, cpm: 7, cpmMin: 4, cpmMax: 9, usuarios: '1,2M usuarios/mes', trend: 'stable', nota: 'Sede en ES. Combina FAST con TVOD. Fuerte en cine europeo y contenido premium de catálogo.' },
+        { name: 'Otros FAST', alcance: '5%', hogares: 0.8, inv: 7, cuota: 9, cpm: 6, cpmMin: 4, cpmMax: 8, usuarios: 'Philips, Hisense...', trend: 'stable', nota: 'Fabricantes de TV menores con canales FAST integrados en sus interfaces nativas.' },
+      ],
+    },
+    PVOD: {
+      color: '#BA7517', bg: '#FAEEDA', tc: '#633806',
+      label: 'PVOD / Pay TV VOD',
+      invTotal: 21,
+      desc: 'Plataformas de pago de operadores de telecomunicaciones con inventario publicitario en contenido premium. Audiencia cautiva, datos de primera parte, menor escala pero máximo impacto.',
+      plataformas: [
+        { name: 'Movistar+', alcance: '19%', hogares: 3.2, inv: 14, cuota: 67, cpm: 16, cpmMin: 12, cpmMax: 20, usuarios: '3,8M hogares suscritos', trend: 'stable', nota: 'Líder PVOD en ES. Inventario muy limitado y selectivo, lo que justifica CPM premium. Targeting 1st party Telefónica.' },
+        { name: 'Orange TV / Max', alcance: '8%', hogares: 1.3, inv: 5, cuota: 24, cpm: 14, cpmMin: 10, cpmMax: 17, usuarios: '1,5M hogares', trend: 'down', nota: 'En proceso de integración con HBO Max tras alianza Warner Bros. Discovery. Transición de producto.' },
+        { name: 'Vodafone TV', alcance: '5%', hogares: 0.8, inv: 2, cuota: 9, cpm: 13, cpmMin: 9, cpmMax: 16, usuarios: '900K hogares', trend: 'down', nota: 'Mercado más pequeño. Integración progresiva con plataformas OTT externas. Futuro incierto.' },
+      ],
+    },
+  },
+
+  // ── DIGITAL ──────────────────────────────────────────────────────────────
+  digital: {
+    metrics: [
+      { label: 'Inversión digital 2025e', value: '9.048 M€', delta: '+10,2% vs 2024', up: true },
+      { label: 'Cuota s/total medios', value: '52%', delta: '+3pp vs 2024', up: true },
+      { label: 'CPM medio display', value: '1,80€', delta: 'referencia', up: true },
+      { label: 'Programática (% display)', value: '78%', delta: '+6pp vs 2023', up: true },
+      { label: 'CTR medio search', value: '3,5%', delta: 'líder formatos', up: true },
+      { label: 'ROAS medio search', value: '4,1x', delta: 'mejor canal', up: true },
+    ],
+    inversionFormatos: {
+      labels: ['Search', 'Social', 'Display', 'Vídeo online', 'Otros'],
+      data: [3439, 2624, 1448, 1175, 362],
+      colors: ['#005FFF', '#D4537E', '#7F77DD', '#D85A30', '#888780'],
+    },
+    ctrRoas: {
+      labels: ['Search', 'Email', 'Social', 'Vídeo', 'Display'],
+      ctr: [3.5, 2.3, 1.2, 0.8, 0.3],
+      roas: [4.1, 4.6, 2.7, 2.2, 1.7],
+    },
+  },
+
+  // ── RADIO ─────────────────────────────────────────────────────────────────
+  radio: {
+    metrics: [
+      { label: 'Inversión radio 2024', value: '490 M€', delta: '+4,1% vs 2023', up: true },
+      { label: 'Cuota s/total medios', value: '7%', delta: 'estable', up: true },
+      { label: 'CPM medio radio', value: '2,5€', delta: 'referencia', up: true },
+      { label: 'Audiencia diaria', value: '14M', delta: 'oyentes/día (EGM)', up: true },
+      { label: 'Podcasts mensual', value: '9,4M', delta: '+22% vs 2023', up: true },
+      { label: 'Digital audio share', value: '18%', delta: '+4pp vs 2023', up: true },
+    ],
+    inversionHistorica: {
+      labels: ['2020', '2021', '2022', '2023', '2024'],
+      data: [380, 420, 455, 471, 490],
+    },
+    cuotaCadenas: {
+      labels: ['Cadena SER', 'COPE', 'Onda Cero', 'RNE', 'Otros'],
+      data: [31, 22, 18, 12, 17],
+      colors: ['#005FFF', '#D85A30', '#1D9E75', '#BA7517', '#888780'],
+    },
+  },
+};
+
+// Simulate a "live" update by slightly varying numbers
+function simulateDataRefresh() {
+  DATA.lastUpdate = new Date();
+  // In a real app, this would fetch from an API
+}
+
+simulateDataRefresh();
+
+// ─── CHART UTILITIES ─────────────────────────────────────────────────────────
+
+const CHART_INSTANCES = {};
+
+function destroyChart(id) {
+  if (CHART_INSTANCES[id]) {
+    CHART_INSTANCES[id].destroy();
+    delete CHART_INSTANCES[id];
+  }
+}
+
+function destroyAllCharts() {
+  Object.keys(CHART_INSTANCES).forEach(id => destroyChart(id));
+}
+
+const C = {
+  blue: '#005FFF',
+  navy: '#000A3C',
+  coral: '#D85A30',
+  teal: '#1D9E75',
+  amber: '#BA7517',
+  purple: '#7F77DD',
+  pink: '#D4537E',
+  gray: '#888780',
+  green: '#639922',
+};
+
+function buildBarChart(id, labels, datasets, opts = {}) {
+  destroyChart(id);
+  const ctx = document.getElementById(id);
+  if (!ctx) return;
+  CHART_INSTANCES[id] = new Chart(ctx, {
+    type: 'bar',
+    data: { labels, datasets },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        y: {
+          beginAtZero: opts.beginAtZero !== false,
+          min: opts.yMin,
+          ticks: { callback: opts.yFmt || (v => v) },
+          grid: { color: 'rgba(0,10,60,0.06)' },
+        },
+        x: {
+          grid: { display: false },
+          ticks: { font: { size: 11 }, color: '#4a5178' },
+        },
+      },
+      ...opts.extra,
+    },
+  });
+}
+
+function buildHBarChart(id, labels, data, color, opts = {}) {
+  destroyChart(id);
+  const ctx = document.getElementById(id);
+  if (!ctx) return;
+  CHART_INSTANCES[id] = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{
+        label: opts.label || '',
+        data,
+        backgroundColor: Array.isArray(color) ? color : data.map((_, i) => color + (i === 0 ? 'ff' : 'cc')),
+        borderRadius: 4,
+      }],
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { ticks: { callback: opts.xFmt || (v => v), font: { size: 11 } }, grid: { color: 'rgba(0,10,60,0.06)' } },
+        y: { ticks: { font: { size: 11 }, color: '#4a5178' }, grid: { display: false } },
+      },
+    },
+  });
+}
+
+function buildDoughnutChart(id, labels, data, colors) {
+  destroyChart(id);
+  const ctx = document.getElementById(id);
+  if (!ctx) return;
+  CHART_INSTANCES[id] = new Chart(ctx, {
+    type: 'doughnut',
+    data: { labels, datasets: [{ data, backgroundColor: colors, borderWidth: 2, borderColor: '#fff' }] },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      cutout: '60%',
+    },
+  });
+}
+
+function buildLineChart(id, labels, datasets, opts = {}) {
+  destroyChart(id);
+  const ctx = document.getElementById(id);
+  if (!ctx) return;
+  CHART_INSTANCES[id] = new Chart(ctx, {
+    type: 'line',
+    data: { labels, datasets },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        y: {
+          min: opts.yMin,
+          max: opts.yMax,
+          ticks: { callback: opts.yFmt || (v => v), font: { size: 11 } },
+          grid: { color: 'rgba(0,10,60,0.06)' },
+        },
+        x: { grid: { display: false }, ticks: { font: { size: 11 }, color: '#4a5178' } },
+      },
+    },
+  });
+}
+
+function buildStackedBarChart(id, labels, datasets, opts = {}) {
+  destroyChart(id);
+  const ctx = document.getElementById(id);
+  if (!ctx) return;
+  CHART_INSTANCES[id] = new Chart(ctx, {
+    type: 'bar',
+    data: { labels, datasets },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { stacked: true, grid: { display: false }, ticks: { font: { size: 11 }, color: '#4a5178' } },
+        y: { stacked: true, ticks: { callback: opts.yFmt || (v => v), font: { size: 11 } }, grid: { color: 'rgba(0,10,60,0.06)' } },
+      },
+    },
+  });
+}
+
+function buildRangeBar(id, labels, mins, maxes, color, opts = {}) {
+  destroyChart(id);
+  const ctx = document.getElementById(id);
+  if (!ctx) return;
+  CHART_INSTANCES[id] = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [
+        { label: 'Min', data: mins, backgroundColor: color + '44', borderRadius: 4, stack: 'r' },
+        { label: 'Range', data: maxes.map((v, i) => v - mins[i]), backgroundColor: color + 'cc', borderRadius: 0, stack: 'r' },
+      ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        y: { stacked: true, ticks: { callback: opts.yFmt || (v => v), font: { size: 11 } }, grid: { color: 'rgba(0,10,60,0.06)' } },
+        x: { grid: { display: false }, ticks: { font: { size: 11 }, color: '#4a5178' } },
+      },
+    },
+  });
+}
+
+function legendHtml(labels, colors) {
+  return labels.map((l, i) => `
+    <span class="legend-item">
+      <span class="legend-dot" style="background:${colors[i]}"></span>${l}
+    </span>`).join('');
+}
+
+// ─── PAGE RENDERERS ──────────────────────────────────────────────────────────
+
+function metricCardsHtml(metrics) {
+  return `<div class="metrics-grid">${metrics.map(m => `
+    <div class="metric-card">
+      <div class="label">${m.label}</div>
+      <div class="value">${m.value}</div>
+      <div class="delta ${m.up ? 'delta-up' : m.up === false ? 'delta-down' : 'delta-neutral'}">${m.delta}</div>
+    </div>`).join('')}</div>`;
+}
+
+// ── HOME PAGE ─────────────────────────────────────────────────────────────────
+function renderHome() {
+  const d = DATA.homepage;
+  document.getElementById('content').innerHTML = `
+    <div class="page-intro">
+      <div class="page-intro-text">
+        <h2>Mercado publicitario español — 2025</h2>
+        <p>Datos consolidados de inversión, audiencias y KPIs de rendimiento para el mercado español. Fuentes: Infoadex, IAB Spain, AIMC, Kantar Media.</p>
+      </div>
+      <div class="page-intro-stat">
+        <div class="big">17.400 M€</div>
+        <div class="small">Inversión estimada 2025</div>
       </div>
     </div>
 
@@ -344,7 +1206,7 @@ html, body { height: 100%; font-family: var(--font); background: var(--surface);
 
     buildDoughnutChart('c-dig-home', d.digitalDesglose.labels, d.digitalDesglose.data, d.digitalDesglose.colors);
     document.getElementById('leg-dig-home').innerHTML = legendHtml(d.digitalDesglose.labels, d.digitalDesglose.colors);
-  }, 80);
+  }, 150);
 }
 
 // ── TV LINEAL ─────────────────────────────────────────────────────────────────
@@ -418,7 +1280,7 @@ function renderTV() {
     buildBarChart('c-tv-franja', d.audienciaFranja.labels,
       [{ label: 'Share %', data: d.audienciaFranja.data, backgroundColor: C.navy + 'cc', borderRadius: 4 }],
       { yFmt: v => v + '%' });
-  }, 80);
+  }, 150);
 }
 
 // ── CTV OVERVIEW ──────────────────────────────────────────────────────────────
@@ -513,7 +1375,7 @@ function renderCTV(subpage) {
     buildBarChart('c-ctv-tipoinv', d.cuotaTipo.labels,
       [{ label: 'M€', data: [160, 113, 76, 50, 21], backgroundColor: d.cuotaTipo.colors, borderRadius: 4 }],
       { yFmt: v => v + 'M€' });
-  }, 80);
+  }, 150);
 }
 
 // ── CTV TIPO DETAIL ───────────────────────────────────────────────────────────
@@ -608,7 +1470,7 @@ function renderCTVTipo(tipo) {
     buildHBarChart('c-tipo-cpm', plats.map(p => p.name), plats.map(p => p.cpm), t.color, { xFmt: v => v + '€' });
 
     buildRangeBar('c-tipo-range', plats.map(p => p.name), plats.map(p => p.cpmMin), plats.map(p => p.cpmMax), t.color, { yFmt: v => v + '€' });
-  }, 80);
+  }, 150);
 }
 
 // ── DIGITAL ────────────────────────────────────────────────────────────────────
@@ -666,7 +1528,7 @@ function renderDigital() {
     const pctData = [38, 29, 16, 13, 4];
     buildDoughnutChart('c-dig-pie', d.inversionFormatos.labels, pctData, d.inversionFormatos.colors);
     document.getElementById('leg-dig-pie').innerHTML = legendHtml(d.inversionFormatos.labels.map((l, i) => `${l} ${pctData[i]}%`), d.inversionFormatos.colors);
-  }, 80);
+  }, 150);
 }
 
 // ── RADIO ──────────────────────────────────────────────────────────────────────
@@ -709,8 +1571,9 @@ function renderRadio() {
     buildDoughnutChart('c-radio-cadena', d.cuotaCadenas.labels, d.cuotaCadenas.data, d.cuotaCadenas.colors);
     document.getElementById('leg-radio-cadena').innerHTML = legendHtml(
       d.cuotaCadenas.labels.map((l, i) => `${l} ${d.cuotaCadenas.data[i]}%`), d.cuotaCadenas.colors);
-  }, 80);
+  }, 150);
 }
+
 // ─── APP CONTROLLER ──────────────────────────────────────────────────────────
 
 let currentPage = 'home';
@@ -826,9 +1689,15 @@ function refreshData() {
 
 // ─── INIT ─────────────────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
-  updateTimestamp();
-  navigate('home');
+  try {
+    updateTimestamp();
+    navigate('home');
+  } catch(e) {
+    document.getElementById('content').innerHTML = '<div style="padding:40px;color:#000a3c"><h2>Error al cargar</h2><pre style="font-size:12px;margin-top:10px">'+e.message+'</pre></div>';
+    console.error('Init error:', e);
+  }
 });
+
 </script>
 </body>
 </html>
