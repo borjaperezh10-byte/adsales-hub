@@ -1,99 +1,834 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AdSales Hub — Paramount</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-  <link rel="stylesheet" href="src/style.css" />
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>AdSales Hub — Paramount</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+:root {
+  --navy: #000A3C;
+  --navy-mid: #001060;
+  --navy-light: #0A1A6B;
+  --blue: #005FFF;
+  --blue-light: #98BFFF;
+  --pink: #FF008A;
+  --gold: #FFD300;
+  --cyan: #02D0E5;
+  --gray: #C1BEC1;
+  --white: #ffffff;
+  --surface: #f4f6fb;
+  --border: rgba(0,95,255,0.12);
+  --border-strong: rgba(0,95,255,0.25);
+  --text-primary: #0a0e2a;
+  --text-secondary: #4a5178;
+  --text-muted: #8a90b0;
+  --sidebar-w: 220px;
+  --topbar-h: 60px;
+  --radius: 10px;
+  --radius-lg: 14px;
+  --font: 'Arial', 'Helvetica Neue', Helvetica, sans-serif;
+  --font-condensed: 'Arial Black', 'Arial Bold', Arial, sans-serif;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; font-family: var(--font); background: var(--surface); color: var(--text-primary); font-size: 14px; }
+
+/* ─── LAYOUT ─────────────────── */
+.layout { display: flex; height: 100vh; overflow: hidden; }
+
+/* ─── SIDEBAR ─────────────────── */
+.sidebar {
+  width: var(--sidebar-w);
+  min-width: var(--sidebar-w);
+  background: var(--navy);
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  border-right: 1px solid rgba(152,191,255,0.08);
+}
+
+.sidebar-brand {
+  padding: 16px 14px 14px;
+  border-bottom: 1px solid rgba(152,191,255,0.1);
+  flex-shrink: 0;
+}
+.brand-logo svg { width: 130px; height: auto; display: block; margin-bottom: 12px; }
+
+.hub-label {
+  display: block;
+  font-family: var(--font-condensed);
+  font-weight: 900;
+  font-size: 17px;
+  letter-spacing: 3px;
+  color: var(--white);
+  line-height: 1.1;
+}
+.hub-sub {
+  display: block;
+  font-size: 10px;
+  color: var(--blue-light);
+  letter-spacing: 0.3px;
+  margin-top: 2px;
+  opacity: 0.8;
+}
+
+.sidebar-nav { padding: 14px 8px; flex: 1; }
+
+.nav-section-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: rgba(152,191,255,0.35);
+  padding: 0 8px;
+  margin-bottom: 5px;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 8px 10px;
+  border-radius: 7px;
+  cursor: pointer;
+  color: rgba(255,255,255,0.55);
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 500;
+  transition: all 0.15s;
+  margin-bottom: 1px;
+  user-select: none;
+  white-space: nowrap;
+}
+.nav-item:hover { background: rgba(0,95,255,0.18); color: var(--white); }
+.nav-item.active { background: var(--blue); color: var(--white); box-shadow: 0 2px 10px rgba(0,95,255,0.35); }
+.nav-icon { width: 16px; height: 16px; flex-shrink: 0; }
+
+.nav-sub-group {
+  margin: 2px 0 4px 25px;
+  border-left: 1px solid rgba(152,191,255,0.15);
+  padding-left: 10px;
+  display: none;
+}
+.nav-sub-group.open { display: block; }
+.nav-sub-item {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  color: rgba(255,255,255,0.4);
+  text-decoration: none;
+  font-size: 12px;
+  font-weight: 500;
+  transition: all 0.15s;
+  margin-bottom: 1px;
+  user-select: none;
+}
+.nav-sub-item:hover { color: rgba(255,255,255,0.85); background: rgba(0,95,255,0.1); }
+.nav-sub-item.active { color: var(--blue-light); }
+.nav-dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; flex-shrink: 0; opacity: 0.7; }
+
+.sidebar-footer {
+  padding: 10px 12px 14px;
+  border-top: 1px solid rgba(152,191,255,0.08);
+  flex-shrink: 0;
+}
+.last-update-box { background: rgba(0,95,255,0.12); border-radius: 7px; padding: 9px 11px; }
+.last-update-label { font-size: 10px; color: var(--blue-light); opacity: 0.7; letter-spacing: 0.3px; margin-bottom: 2px; }
+.last-update-time { font-size: 11px; font-weight: 700; color: var(--white); }
+
+/* ─── MAIN ─────────────────── */
+.main { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-width: 0; }
+
+.topbar {
+  height: var(--topbar-h);
+  background: var(--white);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 22px;
+  flex-shrink: 0;
+  gap: 16px;
+}
+.topbar-left { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.page-title { font-family: var(--font-condensed); font-size: 19px; font-weight: 900; letter-spacing: 0.5px; color: var(--navy); line-height: 1; white-space: nowrap; }
+.page-breadcrumb { font-size: 11px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.topbar-right { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+.update-info { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--text-muted); white-space: nowrap; }
+
+.refresh-btn {
+  display: flex; align-items: center; gap: 6px;
+  padding: 8px 15px;
+  background: var(--navy); color: var(--white);
+  border: none; border-radius: 7px;
+  font-family: var(--font); font-size: 12px; font-weight: 700;
+  cursor: pointer; transition: all 0.15s; white-space: nowrap;
+  letter-spacing: 0.2px;
+}
+.refresh-btn:hover { background: var(--blue); }
+.refresh-btn:active { transform: scale(0.97); }
+.refresh-btn.loading { opacity: 0.7; pointer-events: none; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.spinning { animation: spin 0.8s linear infinite; }
+
+.content { flex: 1; overflow-y: auto; padding: 22px; }
+
+/* ─── COMPONENTS ─────────────────── */
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(145px, 1fr));
+  gap: 10px;
+  margin-bottom: 18px;
+}
+.metric-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+}
+.metric-card .label { font-size: 10px; font-weight: 700; letter-spacing: 0.5px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 5px; }
+.metric-card .value { font-family: var(--font-condensed); font-size: 24px; font-weight: 900; color: var(--navy); line-height: 1; margin-bottom: 3px; }
+.metric-card .delta { font-size: 11px; font-weight: 500; }
+.delta-up { color: #1a7a3c; }
+.delta-down { color: #c0392b; }
+.delta-neutral { color: var(--text-muted); }
+
+.charts-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px; }
+.chart-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 16px 18px;
+}
+.chart-card.full { grid-column: 1 / -1; }
+.chart-card .chart-title { font-family: var(--font-condensed); font-size: 13px; font-weight: 900; letter-spacing: 0.3px; color: var(--navy); margin-bottom: 3px; text-transform: uppercase; }
+.chart-card .chart-sub { font-size: 11px; color: var(--text-muted); margin-bottom: 10px; }
+
+.legend { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 8px; font-size: 11px; color: var(--text-secondary); }
+.legend-item { display: flex; align-items: center; gap: 4px; }
+.legend-dot { width: 9px; height: 9px; border-radius: 2px; display: inline-block; flex-shrink: 0; }
+
+.section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; margin-top: 6px; }
+.section-title { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--text-muted); }
+
+.tipo-tabs { display: flex; gap: 7px; margin-bottom: 18px; flex-wrap: wrap; }
+.tipo-tab {
+  font-family: var(--font-condensed);
+  font-size: 12px; font-weight: 900; letter-spacing: 1.5px;
+  padding: 6px 16px; border-radius: 20px;
+  border: 1px solid var(--border-strong);
+  cursor: pointer; color: var(--text-secondary);
+  background: var(--white); transition: all 0.15s; user-select: none;
+}
+.tipo-tab:hover { border-color: var(--blue); color: var(--blue); }
+.tipo-tab.active { background: var(--navy); color: var(--white); border-color: var(--navy); }
+
+.plat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(195px, 1fr)); gap: 11px; margin-bottom: 18px; }
+.plat-card {
+  background: var(--white); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); padding: 14px 16px;
+  transition: all 0.15s; position: relative; overflow: hidden;
+}
+.plat-card::before { content:''; position:absolute; top:0;left:0;right:0; height:3px; background:var(--blue); opacity:0; transition:opacity .15s; }
+.plat-card:hover { border-color: var(--border-strong); }
+.plat-card:hover::before, .plat-card.featured::before { opacity:1; }
+.plat-card.featured { border-color: rgba(0,95,255,0.3); }
+
+.plat-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.plat-name { font-family: var(--font-condensed); font-size: 15px; font-weight: 900; color: var(--navy); }
+.plat-badge { font-size: 10px; font-weight: 700; letter-spacing: 0.8px; padding: 2px 7px; border-radius: 4px; }
+.plat-stat { display: flex; justify-content: space-between; font-size: 11px; padding: 4px 0; border-bottom: 1px solid var(--border); }
+.plat-stat:last-of-type { border-bottom: none; }
+.plat-stat-label { color: var(--text-muted); }
+.plat-stat-val { font-weight: 700; color: var(--text-primary); }
+.plat-note { font-size: 10px; color: var(--text-muted); line-height: 1.5; margin-top: 9px; padding-top: 9px; border-top: 1px solid var(--border); }
+
+.tipo-banner {
+  background: linear-gradient(135deg, var(--navy) 0%, var(--navy-light) 100%);
+  border-radius: var(--radius-lg); padding: 16px 20px; margin-bottom: 18px;
+  display: flex; align-items: flex-start; gap: 14px;
+}
+.tipo-banner-badge {
+  font-family: var(--font-condensed); font-size: 20px; font-weight: 900;
+  letter-spacing: 2px; color: var(--white); background: var(--blue);
+  padding: 7px 14px; border-radius: 7px; flex-shrink: 0; line-height: 1;
+}
+.tipo-banner-title { font-family: var(--font-condensed); font-size: 14px; font-weight: 900; letter-spacing: 0.8px; color: var(--blue-light); margin-bottom: 4px; text-transform: uppercase; }
+.tipo-banner-desc { font-size: 12px; color: rgba(255,255,255,0.68); line-height: 1.55; }
+
+.trend-up { color: #1a7a3c; } .trend-down { color: #c0392b; } .trend-stable { color: var(--text-muted); }
+
+.page-intro {
+  background: var(--navy); border-radius: var(--radius-lg);
+  padding: 18px 22px; margin-bottom: 18px;
+  display: flex; align-items: center; justify-content: space-between; gap: 18px;
+}
+.page-intro-text h2 { font-family: var(--font-condensed); font-size: 18px; font-weight: 900; letter-spacing: 0.5px; color: var(--white); margin-bottom: 3px; }
+.page-intro-text p { font-size: 12px; color: rgba(152,191,255,0.78); line-height: 1.5; }
+.page-intro-stat { text-align: right; flex-shrink: 0; }
+.page-intro-stat .big { font-family: var(--font-condensed); font-size: 32px; font-weight: 900; color: var(--white); line-height: 1; }
+.page-intro-stat .small { font-size: 10px; color: var(--blue-light); margin-top: 2px; }
+
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 4px; }
+
+@media (max-width: 900px) {
+  .charts-row { grid-template-columns: 1fr; }
+  .chart-card.full { grid-column: auto; }
+}
+</style>
 </head>
 <body>
-  <div class="layout">
-    <aside class="sidebar">
-      <div class="sidebar-brand">
-        <div class="brand-logo">
-          <svg viewBox="0 0 160 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M16 5C16 5 7 12 7 22C7 31 13 37 22 37C22 37 17 30 19 22C21 14 28 9 28 9L22 5H16Z" fill="#005FFF"/>
-            <path d="M22 5C22 5 31 9 33 22C35 30 31 37 22 37C22 37 27 30 25 22C23 14 16 9 16 9L22 5Z" fill="#98BFFF"/>
-            <path d="M9 18C9 18 3 20 3 27C3 33 9 37 16 37C16 37 11 33 11 27C11 21 16 17 16 17L9 18Z" fill="#005FFF" opacity="0.55"/>
-            <path d="M35 18C35 18 41 20 41 27C41 33 35 37 28 37C28 37 33 33 33 27C33 21 28 17 28 17L35 18Z" fill="#98BFFF" opacity="0.55"/>
-            <text x="50" y="18" font-family="Arial Black, Arial, sans-serif" font-weight="900" font-size="12" fill="white" letter-spacing="2">PARAMOUNT</text>
-            <text x="50" y="32" font-family="Arial, sans-serif" font-weight="400" font-size="9" fill="#98BFFF" letter-spacing="1">NETWORKS SPAIN</text>
-          </svg>
-        </div>
-        <div class="brand-hub">
-          <span class="hub-label">ADSALES HUB</span>
-          <span class="hub-sub">Spain Market Intelligence</span>
-        </div>
+<div class="layout">
+  <aside class="sidebar">
+                <div class="sidebar-brand">
+      <div class="brand-logo">
+        <img src="data:image/png;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDAAUDBAQEAwUEBAQFBQUGBwwIBwcHBw8LCwkMEQ8SEhEPERETFhwXExQaFRERGCEYGh0dHx8fExciJCIeJBweHx7/2wBDAQUFBQcGBw4ICA4eFBEUHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh7/wAARCAEnA8ADASIAAhEBAxEB/8QAGQABAAMBAQAAAAAAAAAAAAAAAAIDBAEI/8QALxAAAgECBQMEAgMAAgMBAAAAAAECAxESITFBUQQTkVJhcYEiQjIzoTSxFCNi4f/EABoBAQACAwEAAAAAAAAAAAAAAAACAwEEBQb/xAA0EQACAgEDAgUCBQMEAwEAAAAAAQIDEQQSITFBBRNRUpEy4RQiYXGBobHwFSPB0TNCQzT/2gAMAwEAAhEDEQA/APGQAAAAAAAAAAAAAAAAAABKMZS0VzKi5PCBEF0aHqfgtjCMdEjeq8PtnzLgg7EjNGEpaRZNUJPVpGhtJXbsVyrQWmfwbP4LT1c2SI75PocVCO7bJKlBfqVyry2SRB1Jv9mReo0lf0xz/H/Y2yZoUIr9V4O/iuDI23q2cMf6jFfTD/Pgz5f6my8eULrlGMD/AFR+3+o8v9TZZcI44Rf6rwZCSnNaSZleIwf1QMeW/U0OlB/qRdCOzaIRrTWtmTjWi9ciyNmjt4aS/oYxNEJUZLRplcoyjqmjWmmrp3OmZ+G1yWYPAVj7mIGqVKEtrP2KZ0pRz1Xsc+7RW1c4yv0LFNMrABqEgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAASjGUnZK5ZTot5yyXBckkrJWR0dP4fKf5p8L+pXKaXQrhRSzlmy1ZaHG0lduyKalZvKGXudGUqNJH0/uQ5kWznGOrKp1m/4qxS83dg5l3iFk+I8IsUEjrbbu22cANFtt5ZMAAwAAAAAAAAAAAADsZOLunYvp1VLKWTM4NijUzpfD49CMopm0FNGp+svplx36bo3R3RKWsMrqUlLNZMzyi4uzRsIzipqzNbVaKNq3R4ZKM8dTICU4uMrMicKUXF4ZcAAYAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAOpNuy1CWeEAk27JXZopUlHN5s7SpqC9yZ3NJolX+efX+xTKeeECNSagrvwcqzUF77IzSbk7t5ktXrFT+WPX+wjDJ2c3N3fgiAcOUnJ5k+S7oAARAAAAAAAAAAAAAAAAAAABKUJRSbVrkTMouLw0AaqM8UM9VqZSyhK1Re+RtaK512r0ZGayjSAD0RrkKsMcbb7GU2mfqI2ndbnK8RoTXmL+S2uXYqABxy0AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAGmjTwq71ZXQheWJ6I0HX8P03/wBZfwVTl2BGpJQjdkjLVnjl7LQ29XqPJhx1fQjGOWRk3J3epwA88228svAAMAAAAAAAAAAAAAAAAAEoRcpWRmMXJ4QORi5OyNNOnGCvvydhFQjZFfUTssC+zsV0Q0lfmT5ZU5OTwiurPHL22IAHInNzk5S6liWAFk7gETJtWauCNP8Arj8Ej1cHuimazBX1CvTvwWEamcJfBC+O6uS/QJ4ZkAB5c2QAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAdSbdkcLenjed+Cymt2TUPUw3hZL4RUYpI6AeoilFYRrlXUStHCtWZyVWWKbfgiec1d3m2t9i+KwgADWJAAAAAAAAAAAAAAAAAAHYpt2WpqpwUI2Wu5GjDCrvVlh3dDpfLjvl1f8AQpnLPByTUYtvYySbbbe5d1MtIr5ZQafiN2+exdF/clWsLIABziwAAA10/wCuPwSOJWSXB09XBbYpGswcl/F/B0jVdqcvgxY8QbC6mQAHlTZAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABp6dWp35Mxrpq0Ir2Oj4bDNjl6IrsfBIjVeGm2SKupf4Jcs62onsqlIrisszgA8wbAAAAAAAAAAAAAAAAAAALaEMUsT0RXFOTSW5rjFRiktjf0Gn8ye59EQnLCwdDyQK+olaFuTtW2KuDk+xSll4M85YpN8nADy8m5PLNkAAwATpLFUXkgaOnjaLk9zZ0lXmWpEZPCLQAekNcFPUyyUeS55K5kqSxTb8Gh4hdsq292TgssiADgl4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAOxV2ktzKWXhAuoQTjikr30LO3D0o7FWSS2Ono6dNCEFFpGu5Nsj24elFNdRjZRSTNBkqSxTbNbX7K68JLLJQy2RABxC4AAAG1aIxG1aI63hfWX8FVnYFPVfqXFHVaxNvX/wDgl/H9yMPqKQAeeLwAAAAAAAAADTTpRUc1dnZU4NaJfB0F4bY45zyQ8xGUHWrNp7HDntY4JgA7CLlJJGYpyeEC7p4ZY39FwSsrIHpqKlVBRRryeXkGbqJXnbg0t2Tb2Mbd229zS8SsxBQ9SVa5ycABxS4AHYpydlqZSbeEDtOLnK225rSsrIjTgoRtvuSPQaPTeTDnqyicssAFVaph/GOv/RfbbGqO6RFLJzqJ/ovsoAPO33SunuZsJYQABSZAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABd00bty4KTXTjhgkb/h9O+zc+iITeESAB3ighWlhpvl5GUt6iV54eCo8/r7d9rS6LgvgsIAA0iYAAANdJ3pxfsZC/ppZOP2b/h1m23D7kLFwXFPUrKLLiFZXpv2zOtqob6ZIqi8MygA80bAAAAAAAAJQV5pe5mK3NJA1gHJO0W+D1baSyzWMtTOcvkiAeUk8ts2QX9NGycnvoUxWKSS3NiVlZHR8Op3T3vsV2PjAAB2ykrru1O3ORmLepd5JcFR57X2b7mvTgvgsIA6k27JXLYUW85ZLgoqpna8RRJtLqVwi5OyNFOCguXySilFWSsdO3pdHGn8z5ZTKeQG7K7K51Yx0zZROcpvN/Qv11dXC5YjBssq1r5Q8lIJwpynpkuTjTnbqZ+rLUlFECUYTlojRClGO13yyZvVeGd7H8EHZ6FCoPeSRLsR9TOzrRWSzZGFWc5pJJIs26OMlBLLGZvk72I8s46HEv8AC4Gy9FQ//UjvkZpUpra/wVmyTSTb2Mjd23ycvW6eFLW19SyEm+pw7FNtJbnC7po5uXg16KvNsUSUnhZHYfqQ7D9SLwdr8BR6f1Kd7M1Sk4Ru5Igk27JXZdVTqVMK0WpZCCgrLyaX4JW2tQ4iie/C5Ko0H+zt8EnRjbJstB0I6KmKxtIb2Y5LDJp7HCVR3m37kTz00lJpdC5AEoxcnZIuhRis5Zsuo0tl30rj1MOSRTGMpaJsnGhLdpGghOpGOTd3wjorQ01LdY/+CG9voRVCO7Y7EeZEXXk3lFFyvZX1LKa9LblQj0MNyXUqdBbSZGVCS0aZoBZLQUS7YMKbMbTTs1ZnCdaWKo/bIgcGyKjNqL4Ll0BbGjJpO6VyNKOKaW25qN7RaSNqcp9CE5Y6GfsS5Q7EvUjQV15WhZavI27dFRXBya6EVOTZmJwpylosuWW0qSWcs3wWmvp/DnJbrOP0JSs9ClUFvJ/R10I7NloN9aOhLG0r3syVIODz05Imqur037GenBzeWnJyNTptluyHctjLKyyJZGjJ65F8IRgslnySNynw1JZsZF2ehUqEd2w6Edm0Wg3PwdGMbSG9mScXB2ZE011em3wZjiauhU2bV0LoyygADWJA6k27JXJU6bnnouTTGMYqyRu6fRTu/M+EQlNIojRk9bImqEd2y0hUmoa5vg6X4TT0xzJfJXukznZh7kZUPTLyc77v/FWLk00mtyNcNLflRX/BluUTLKLi7NETZKKkrMyTi4yaZztXpHQ8roTjLJwAGmTBKnFzlZETR08bRxPVmzpafOsUX07kZPCI9h+r/B2H6v8AC8HY/AUe3+rKt8jPKjhi25aexUX9TLSK+WUHI1ka4Wba10LYZa5BZTpOcb3sQSu0lua4q0UlsW6HTK6TcuiMTljoU9h+r/B2H6v8LwdL8BR6f1ZXvkZakMFs73IEqksU2/BE4V2ze9nQuWccgu7D9SI0I4p32RpN/RaSNsHKaITk08Io7D9SOOi0ruSNBXXbsoLVmzbo6K4OWCKm2zMWQpSl7L3LadJRzebLCnT+HZWbfgzKz0KlQju2w6Edm0Wg3vwdOMbSG5mWpBweenJA2Tjii0Yzj63TKiS29GWwllAtjRbSd0rlayaurl3f/wDj/SOmVHLuf9zMs9hCjhkm2nYuOQblFNq1zp3aKq64/k6Mpk2+oAK6lVQdrXJWWRrjuk8Iwk30IOjJttyWZyVFpNuSyJd//wCf9I1KuONrWOTZ+D2trl/yWreVAA5hYAAADsJOMk0cBmLcXlA2RakrrQ6ZqVTA7PQ0Jpq6d0ei02pjfH9e5ryjgy1I4ZtbbETVVgpx99jNJOLs1ZnH1emdM8roy6Mso4ADUJAAAAu6aObk/ohTg5v23ZpSSSS0R0tBpnKXmS6IrnLsdKeonlgX2Tq1FBe5mbbd3qbGv1SjHy49X1Iwj3OAHUruyOL1Li7po6yfwi45BYYpLY6em09XlVqJryeWADkmoxbeiLm0llmCqVFyk25a+xKNGC1uyLrraLIuvLZJHLc9HF7ur/llmJsvilFZJI5KcY6yRmlOctZMiRn4kksVxCr9S+Vdfqr/ACVSnKWr+iING3VW2/U+CaikAC+jTt+UtdkRooldLbEy3hHKVK/5T8F4DdldnoKaIURxEobbOSairt5GapUc3wuBVm5v22IHJ1esdj2w6f3LYwxywaOmjaLlyURTlJJbmtKySWxLw2ndNzfYxY+MHQAdspKeplZKPJQSqSxTbInmtVb5trl2NiKwga4RwwSKOnjed9kaTo+G04i7H3IWPsADjaSbeiOm2kssrOfjBZuxJZq5mu6tRJ6Gk1tPd5udq/KuhmSwCFaWGHuyZnrKUqjVn7DWWShX+Xq+DMFllRZSpuebyROnRtnPwXGhpvD2/wA1vwTlP0ORSirJWOgor1LvDHTc6V10KIZ+CtJyYq1b5R05KQDz1107ZbpMvSSLOnjed9kaSFKOGCW+5M72jp8qpJ9WUzeWCFWWGDe+xMz9RK87cDV3eVU33MRWWVAHYRxSS5POpOTwjYL+njaOLktCVlZA9PTWqoKK7Gs3l5BzCsWJ67HSmvUt+MddzF9kK4bpGYpt8HatXDlHNlUZzc1+T1IFnTxvO+yOKr7dRalnBbhRRpAB6AoOTWKLXISjCPCR0zVqmJ2WiNXU3QoW9rnoTim+DtSs27RyXIoyk6iTbaKi7po5uXGRyqbbbr45fcsaSReADvlBXXdqb9zMXdTLNR4KTz+vs33NLtwXwWECyjTxu70RGEXKSSNUUopJaEtDpfNlul0QnLB1KysgA8ldnd6FBGpNQjffYyttu71O1J45X22Inn9ZqXdPC6IvhHCBqof1RMpsgrQS9i/wyP8AuN/oYs6HSnqVkpfRcRqRxwaOnqa/MqcUVxeGZATdOaf8WShRk3nkjz8dPbJ4UWX7kRpQxy9tzUcjFRVkdO7pNMqI/qymUssBuyuwVdRK0cPJbdaqoOTIpZeCibxSbe5wA8w25PLNku6aN5OXBeRpxwwSJHpNLV5VSj3NeTywV15YYe7yLDNXlin7LIhrbvLqeOr4MwWWVgEqUcU0ttzz8IuclFdy98GihHDBcvMmAeorgq4qK7Gs3lg5ZXvudKa9S34L7IX2xqhukZSy8CrWztDyU3d73dzhOjHFNcLM4MrbNRYk31LklFGmN7K+p0A9GlhGuG7K5iNNeVqb98jMcbxOeZqPoXVrjIJU44ppETR08bRcnuamlp821R7EpPCLQAelNcN2V2Y5vFJvkv6iVo4eTOcXxK7dJVrsXVruAAcwsAAAAAAAAABKE5QeTIglGTi8pjqaIVovXJk5RjNZ2ZkOptaOxvw8QljbYsorcPQtlQf6vyR7U+P9OKpNfszvdnz/AIVuWkl2aM/mCozfC+yyNBL+TuV92pz/AIRc5vWTMxs0sOVFv9xiTNLlCCs2kVTrPSKt7lIM2+IWTWI8IKCQebuwAaBMFvTxvLFwVGulHDBLfc3dBT5luX0RCbwiQAPQFAKupdoqPJaZa8sVR+2Rpa+zZS168E4LLIAA8+XgAAAAlCLlJJGYxcnhAnQhieJ6I0HEklZaHT0mmoVMNvfua8pZYKOond4FpuWVZ4IX32Mpp+I6javLj36k649wAdSu7I43UtLemjrJ/RechHDFLg6em01XlVqJryeWCuvLDC27LDLWlim+FkVa67y6njq+DMFlkACdGOKa4WbOBCDnJRXcubwX0Y4YLl5kwD1EIKEVFdjXbyDP1E7vCtFqXVJYYN77GQ53iN+1eWu/Usrj3LOnaVTM0mIsVWaWtyjR6yNMdskZnBt5RpOXV7J5mZ1Jyyu/o0U4YI233N+nVefLEFwu5Bxx1JAHG0k29EbbeOWRIVp4Y2WrMxKcnKTbInnNVe7p57di+McIE6McU1wsyBpoRwwvuzOjp821Z6LkTeEWAA9Ga5ycsMW+DG83dl3Uy0j9spOF4hdvs2roi+tYQL+mjrL6RSld2RrisMUlsPDqd9m99EYseFg6ADulJGrPBG++xkJ1pYp+y0IHntbqPNswuiL4RwgaqMcMFy8yilHFNLbc1G14ZT1sf7EbH2AAbsrs65UVV54Y4VqzOSnLFJsiea1V7usb7djYisILN2NcI4YpFPTxvLE9EaDo+G04i7H3IWPsA3ZXYKuolaOFbm/daqoOTK0svBRJ4pN8nATpRxTS23PNRUrJ47s2OiLqEMMbvVlgB6aqtVwUV2NdvLyCnqJ2WFb6lraSbexkk3KTb3NPxC/ZDYur/sTgsvJwAHCLiVNYppGso6aObl9F53fDq9tW71KbHyDkpKMW2dKuodoW5Zt32eXW5ehBLLJd2n6v8OOtHa7ZmLenjeWLZHLr111slBY5LXBLk0LTMAHZKQZKksU2y+vK0LbszHG8Suy1WuxdWu4LKEcU77IrNVGOGC5eZr6KnzLVnouSU3hEwAehNcjUlhg34Mhb1Eryw8FRwNfd5luF0RfBYQNHTxtHFyURWKSS3NiVlZFvhtO6bm+xix8YAAO0UkaklCLfgyt3d2TryxTstEVnn9df5tmF0RfCOEDTQjhhfdlFOOKaXk1l/htOW7GYsfYAEaksMGzrykopyfYq6lFeV522RWAeYtsdk3J9zYSwsHYrFJLk2JWVkU9NHWT+EXHZ8Op2V731ZVY8vAAIVpYYPl5G7ZNQi5PsQSyyirLFNvbYgAeXnNzk5PubKWAACIAAAAAAAAAAAAAAAAAAAAAAAAAAALKEcU/ZZmkhQjhh7vMmei0VPlVLPV8lE3lgAG2QIzlhg2ZC7qZZqP2yk4PiFu+zauiL4LCAANAmAAADTQhhjd6sppRxTS23NR1fDaMt2P8AgrsfYAEK0sMHy8jqzmoRcn2KkslFaWKfstCAB5iybsk5PubCWAW9PG8sXBWld2RrhHDFI3NBR5lm59ERm8I6ADvFBCrLDBvfYylvUSvLDwVHn9fd5luF0RfBYQNNCOGF92U0o45223NRseG0Zbsf8EbH2AByTwxbex121FZZWUdRK8sPBUdbu7s4eYusds3N9zYSwsAA6ldpLcqSyZLenjd4ntoXnIpRiktjp6bTUqmtRNeTywU9TL9F9lrdk29jJJuUm3uaviN2yGxdWSrWXk4ADhlxKnHFNLyayrp42jierLTv6Cny68vqyibywG7K7BV1ErRw8mzdaqq3JkUsvBRJ4pNvc4DqTbsjzDbk/wBWbJb08bycuC85CKjFJHT0mmp8mtR7mvJ5YIVpYYPl5EzNXlinbZENbd5VTx1fBmCyysA7COKSXJ55JyeEXl/TxtC/JaErKyB6emtVwUV2NZvLyCrqJWjh5LTJVlim3tsa2vu8urC6slBZZEAsoRvO+yOJVW7JqK7lzeFkvpxwwS8kgD08YqMVFdjXfIMlSWKbZd1ErRstWZzkeJXZkq12La13Bo6eNouXJQld2RrirRS4I+G1brHN9hY+MHQAdspKuplZKPJnJVJYptkTzWqt821vsbEVhAAsoRxT9lmVVwdklFdzLeEX044YJEgD1EIqMVFdjXfIM/Uu80uDQ3ZXZjk8Um3uc/xK3bBQ9Sda5ycNdKOGCW+5RQjinfZGkh4bThOxmbH2ABCtLDB8vI6Vk1CLk+xWlllFWWKb4WSIAHl5zc5OT7mwlgnSjimltuaiuhDDG71ZYd7Q0eVXl9WUzeWDknhi29jpT1MslH7ZfqLfKrcjEVl4KW7u7OAlCLlJI80k5ywurNjoW9PDLG/ouCVlZA9LRUqoKKNeTy8gjVlhg3vsSM/USvLDsiGru8qpvuIrLKgCUI4pJHnIxcmkjYLunjaOJ6stCyQPT01qqCguxrN5eQZ+oleWFbF05YYtmR5u5o+JXbYqtdyytdwdinJpLc4X9PCyxP6OZp6XdYolknhFsUoxSWx0A9KkksI1wZq8rztsi+pLDBsyHM8SuxFVruWVruAAcYtAAAAAAAAAAAAAAAAAAAAAAAAAAABOlHFNLbcgaaEcML7s2tHT5tiT6IjN4RYAD0Zrg5JqKbex0o6ieeBfZRqLlTW5EorLKpNttvc4AeabbeWbAABgAAAGjpo2i5clpGmrQivYken08PLqjE15PLBn6mV524NBjm7yb9zU8Ss21qPqSrXJwAnSg5y9tziwg5yUY9S5vBZ08P3f0XBKysgelopVMFFGvJ5eQcnLDFtnSjqZaR+zGpt8qtyEVllLzdwC6hD939Hn6apXT2ovbwiylDBH3epMA9JCChFRXRGu3kFPUy0j9subsrsxyeKTb3NLxG7ZXsXVk61l5OAA4RcC3p43nfgqNHTq0L8s29DXvuWe3JGbwi0AHojXKuolaFuTOW9Q71LcIqPO62zfc/04NiCwgTpQxy9lqRSbdlqaqcVCNvJnR6fzp5fRGJywiQAPQlAMlSWKbfg0VpYab5eRlOR4nbyq1+5bWu4L+nh+7+iulDHL2WpqI+H6bc/Ml07GZy7AAHZKSNSWGDZkLupleSjwUnA8Qu327V0RfBYQL+mjrL6RQs3Y2QjhilwS8Op32bn0QseFg6ADulBCvLDD3eRlLK8sU7bIrPO627zLXjouDYgsIGulHDBLfcooRxT9lmaTc8Np4dj/AIIWPsACuvLDC27yOnZNVwcn2K0svBTVlim3tsQBOlDHL2Wp5pKd1nHVmxwkWdPD939FxxtKy+kdPRUVRqhsRRJ5eQRqvDTbJFPUvJR+yOqs8uqUhFZZQADzRsA1UY4Ye71KaMMUrvRGk6/htH/0f8FVkuwAOSaim3sdVtJZZWV9RKywrfUznZScpNvclSjimlsecuseou478IvS2ovoxwwXLzJgHoa4KEVFdihvIM1eWKdtkX1JYYNmQ5viV2Eq0WVruCyhDFK70RGEXKVkaoxUYpI1tDpvMlvl0RKcscHQAd4oBknLFNsvrytC27MxxvErcyVa7F1a7g00YYY56shQp3eJ6bF5Z4fpsf7sv4MTl2AAOqVHJywxb4Mbzd2XdTLNRXyyk4XiF2+zauiL61hAv6aNk5c6FKV2lya4qySWxnw6rdNzfYxY+MHQDknZNvY7beFllRT1ErtRW2pSdbu23uIpydlqeZusd1jl6mwlhEqUMcrbbmojTioRt5JHc0mn8mHPVlMpZYADdlc2uhAo6mV2o8FJ2TvJvk4eZvt82xyNlLCwAAUmQAAASwy9L8F1CCUcT1ZadSnw7fBSk8ZK3ZhmIF3URStJb6lJoXVOqbgyaeVkAAqMgAAAAAAAAAAAAAAE6McU/ZamohShgjbfcmei0dHk189WUTllgAG2QI1JKEb+DK3d3ZKrPHL2WhA89rdR508Loi+EcIAA0yYAAAAABtWgI03ign7Ej1cGpRTRrMGNpp2ZsBrarS/iEucYJRltMtOnKXsuTTGKjGyOlFarf8Y/bKlXVoobnyzOXNl6aaugRp/wj8Ejeg8xTIMGSq71JfJrIuEW7uKua2r08r4qKeCUZYKaVNyzlp/2aFbRbFdWoo5LORKCtFJ67kdNCFTdcOX3Yk2+WSABukCrqJWjh5M5KrLFNvbYieb1d3m2t9jYisIAA1iQNVD+pGU09O707cHQ8NaVz/YhZ0LAAd0oM1dNVG3oyEYuTslc2A5k/DlOxy3cMsVmEQpU1BX1Z2MlKTS2K61X9Yv5Zzpn/JE4X1xtjTX0Di8ZZeADoFZR1N/x4IU6bm+Fyamk9UclJRjdnPt0UZ2Oyb4LFPCwhFKKSR0rpNyvN/CLDcqkpRTS47fsQfUHJO0W3sdKeplko+SN9vlVuRmKy8FLd229zgB5lvPLNgt6eN534NBClHDBLfcmei0lPlVJdzXk8sEaksMG/BIz9RK8sPBnVXeVU33EVllQAPNmwaOmVoN8stIUP6kTPTaZJUxx6GvLqDP1N8S4saANRT50NmcCLw8mWnTlN8Lk0pRhHhI62krvQzVamN2WhqNVaGGVzJ/58EuZsOpiqp7JmkxGqlLFBcrUr8PvcpyUny+TM44RMz9Q/wD2fCNBR1EG3iSvybOvjKVPBGHUpOxTbSWp2MJN5RZopU1Bcs5On0k7pdMItlJI7CKjGyJAN2V2ehjFQWF0RR1BmrVMTstEdq1cX4x0/wCyo4+t1m//AG4dC2EMcsF3TLOTKS/pn/JGvoUvPjklP6S4AHojXKepvhXFyqEJTeS+zWMkjQu0Stt3yfBYp4WCMIqEbL7ZyE8c5W0RVWq4vxjp/wBkul/YhDUxd0aq/pQceMsuAB0isz9RfuW9hSpOTvLJGg5OSirs58tHDzHbY+Cze8YQyVkdK6V5Xm98kWG5VPfHd2INYBxuybex0q6mVoqPJi+1VVuQSy8FEnik29zgB5htt5ZsllBXqL2NJn6f+z6NB3PDUvJ/kps6gr6i/b+ywG5bDfBxzjJBPDMkYyk7JGinBQXL5JlNWr+sfJowoq0a3zeX/nQm258IlKd6igvssM/T/wBn0aC/SWSti5y7sxJYeAV13an85FhR1LzSM6yeymTMQWWUgA84bAOxTk7LUJNuy1NNKChG713Zs6bTO6X6LqRlLBycYRpWe3/ZmJ1Z45ey0IGdXZCc8QXC4EU0uTZHKKXsdORzin7HT0MeiKCrqX+KXuZy7qv1KTga95vf+di6H0gAGmTAAAAAAAAAAAABd08LvG9tCFKDnK225qSSVkdLQabfLzJdEVzljgAA7ZSCivUv+K03JVqlvxjruZzk67V//OH8lsI92AAcgtAAAAAAAAALKVTBk9DRGUZaNMxg3tPrp0ra1lEJQTNpGVSEdX4MgLp+KSa/LEwqyypVcslkisA51lkrHuk8k0ki6hUSWGTtwXmIG9R4hKuKjJZwQcMmyUox1aRTUrXyhl7lII3eIWTWI8GVBInSs53k9M8zRjh6l5MgIUayVMcJCUMmvHD1LyQq1I4HhabZnBbPxGyUWsGFWkAAc4sAAABKnNwlfyRBKMnBqS6hrJrjOMtH9EjEDpx8UaX5olbrNcpxjqyipVcslkisGvfrrLVhcIyoJAlCThK6Ig04ycXlEzXGUZLJkjEDqR8UeOY8lXlmmdWMdM2USk5yzf8A+EQal+rsu4fT0JxikaoygkkpLL3O44epeTIDYXic0sKKI+WjXjh6kZpyxTbIgo1GrlekmsEoxUQSppOaxNJEQa0ZbZJkma8cPUvIxw9S8mQHR/1OftRX5aNTqQSbxJmZu7uzgNXUaqV+M9iUYqIABrEiyjUwuz0ZoTTV07mMG9p9dKmO1rKIShk2kJ1YR3u/Yy3YLp+Jya/LHBhV+pOpOU3npwQAObOcpvdJ5ZYlgEoScJXREGIycXlA1QqxlvZ+5MxHU2tG0dOvxOSWJrJW6/Q2BtLV2MmKXqfki89SyXii7RMeWaZ1orTNlE5ynrpwRBo3auy7hvgmopAAGqSBKnJwlciCUZOLTXUGuM4yWTJGIHTj4o8cx5KvLNU6sI73fsUVKkp65LggDVv1ll3D4RNQSBOlPBO+25AGtCbhJSXVEmsmyLTV07nXlqYgdReKPHMef3KvLNM60VpmyiUnOV5MiDSv1Vl31dPQmopGmNSmkkpaHe7D1GUGwvErEsJL/P5I+WjV3Yeoz1JYptkQUX6ud62yJRikAAapI7FuLTWqNMKkZLWz4MoNnT6qdD45RGUVI23XJCVSEd7/AAZQbU/E5tfljgiq0WVKspZaIrAOfZZKx7pPJNJIs6d2qfKNJji2mmtjXCSlG6Ov4banBw7ldi5ydKOpWal9F4aTVmrm5qKfOrcCEXh5MR2MXJ2Suae1C/8AEk3GC2SObDw1p5slwWOz0I06aguXyVVqmL8Y6f8AZyrVcslkishqdVFR8qnoIx7sAA5xYaqDvTXtkTM1CeGVnozSei0VysqXquCiawyrqVeCfDM5sksUWnuZJJxbT2Of4lU1NT7MnW+MHAAc0sAAAAAAAAABKEXJ2QhCU3lpyaYRUFZG7pdHK57pfSQlLB2EVGNkdBxtJXbsjvJRhHC4SKep0pq1bfjHXkjVquWUckVHK1evz+Sv5LIw7sAA5JaAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACUJSg7pkQZjJxeUC9V1vHwd78eGZwbi196WMkNiLZV5PRJFcm5O7dzgNey+y36mSUUugABUZAAABfRq/rL6ZQC6m6VMt0TDSZtIVaamr6Mpp1ZRy1XBdGrCW9n7nZjqadTHbLj9GUuLjyjNKLi7NWOGxpSWaTRXKhF6No0rfDZrmDyiasXczgudB7SRzsS5Rr/AIO/2kt6KgXqhzL/AAlGjBa3fyTh4fdLqsGHNGdJt2SuWwo7z8FySSslY5KcI6yRu16Gqr81jz/Yg5t9CSSSslYFMq6/VeSqc5S1ZOzxCqCxHkKDfUvnWislmyicpSd2yIOXfqrLur49CxRSAANYkCxUpNJq2ZWCcHFP8yyYZZ2Z8ryOzPleSsFm+n2P5+xjD9Szsz5XkdmfK8lYG+n2P5+ww/Us7M+V5HZnyvJWBvp9j+fsMP1LOzPleR2Z8ryVgb6fY/n7DD9Szsz5XkdmfK8lYG+n2P5+ww/Us7M+V5HZnyvJWBvp9j+fsMP1LOzPleR2Z8ryVgb6fY/n7DD9Szsz5XkdmfK8lYG+n2P5+ww/Us7M+V5HZnyvJWBvp9j+fsMP1LOzPleR2Z8ryVgb6fY/n7DD9Szsz5XkdmfK8lYG+n2P5+ww/Us7M+V5HZnyvJWBvp9j+fsMP1LOzPleR2Z8ryVgb6fY/n7DD9Szsz5XkdmfK8lYG+n2P5+ww/Us7M+V5HZnyvJWBvp9j+fsMP1LOzPleR2Z8ryVgb6fY/n7DD9Szsz5XkdmfK8lYG+n2P5+ww/Us7M+V5HZnyvJWBvp9j+fsMP1LOzPleR2Z8ryVgb6fY/n7DD9Szsz5XkdmfK8lYG+n2P5+ww/Us7M+V5HZnyvJWBvp9j+fsMP1LOzPleR2Z8ryVgb6fY/n7DD9Szsz5XkdmfK8lYG+n2P5+ww/Us7M+V5HZnyvJWBvp9j+fsMP1LOzPleR2Z8ryVgb6fY/n7DD9Szsz5XkdmfK8lYG+n2P5+ww/Us7M+V5HZnyvJWBvp9j+fsMP1LOzPleR2Z8ryVgb6fY/n7DD9Szsz5XkdmfK8lYG+n2P5+ww/Us7M+V5HZnyvJWBvp9j+fsMP1LOzPleR2Z8ryVgb6fY/n7DD9Szsz5XkdmfK8lYG+n2P5+ww/Us7M+V5HZnyvJWBvp9j+fsMP1LOzPleR2Z8ryVgb6fY/n7DD9Szsz5XkdmfK8lYG+n2P5+ww/Us7M+V5HZnyvJWBvp9j+fsMP1LOzPleR2Z8ryVgb6fY/n7DD9Szsz5XkdmfK8lYG+n2P5+ww/Us7M+V5HZnyvJWBvp9j+fsMP1LOzPleR2Z8ryVgb6fY/n7DD9Szsz5XkdmfK8lYG+n2P5+ww/Us7M+V5HZnyvJWBvp9j+fsMP1LOzPleR2Z8ryVgb6fY/n7DD9Szsz5XkdmfK8lYG+n2P5+ww/Us7M+V5HZnyvJWBvp9j+fsMP1LOzPleR2Z8ryVgb6fY/n7DD9Szsz5XkOjJK915KwN9Ptfz9jOGAAUGQAAAAAAAAAAADqk1o2iSqzW5AFkbZw+ltGGky3vT9h358IqBZ+Lu9zMbUWd6fscdWb/YgCL1Nr6yZnajrlJ6ts4AVNt8syAAYAAAAAAAAAB1Jt2SuzhbQsnifNkcrxw1H75mw6MUqwjnnBWADXJAAAHUm3ZK5Ltz9LJyWCgrb6srhJxldGzKuFbUZ55I5b6ETqTeib+DtRpzbWjOJtaOxS0lLHYydwT9MvByzvazuX12+3HPUphFyd72S1ZfdRGFihHkwnlZGCfpl4ONNOzVic6jeUW0kVlVqrTxB5MrPckoyekX4OOMlqmvlE6U3GWbyO9RFqWK+TLfKg6XOOcrqYy84K1FvRN/CDjJK7i19EqP8r3slmzk5uTu3lwV7IKvc+pnLycSbdlmdwT9MvBE0Qk+w3d3JaeqNrafZZMSbRTgn6ZeDjTWqsMUvU/JZTqXeGeaZiEKpvGcBtoqBZWhgeWjKyuyuVcnGXUynkHbO17ZI4aIRXbdPe12W6ejzm0Yk8GcB5MGuSOqMnom/oNNOzTQjJxd02jROKqRt+yNqnTq6D2v8y/qRcsMzHVGTV1F+A007PUnRk1USu7FVUFKajIy3wQcZLVNfRwlUbc3d7kSM0lJqIQJRjKWibLKcFGHcnnwiuc5Seb+ix1KuKc+/YxnPQ66c/SyLTWqsIycXdOxKrJScZe2ZhxrcG48NGeckUm9E38HcE/TLwcTa0di7qG1GNm0TqqhKuUnngw208FWCfpl4ONNOzVjqnJO+J+RUalNtaMrkq9uYvkzzkiACoyAC7CqUMTV5PQtqqdmX0S6sw3grUJvSLDpzX6s5KTk7t3Owm4u6eXBleTnDz+/2+45IglVs6ja0ZyEXKSS3IOH59q5GeAk27JXJdufpZKo1D8IZcsru73u7ls4V1vbLl/oYTbDTTs1Y4X05KosE83syqcXGTTMWU7YqcXlMJ9jiTbsszuCfpl4Il8W//HbvmZ09UbG0+yyJNoqwy9L8ESUZyi7pst6hJxU1uZVMZwcoPp2GcPDKDqjJq6i39HC3p2+5a+RXTCM5qL7mW8Ihgn6ZeDjTWqsTrSfcebJ0n3IOMs7bl0aITsdcXyY3NLJQDrVm1wTowxyz0WprwrlOWxdTLeFkhGLlomyTpzX6sVJtu0corRIjGTi7p2LGqovHL/UcnAX2VWF7WkigxdS68NPKfRhPJ1Rb0TfwjuCfpl4ORbTVmXdS2nGzaJ11QlVKbzx/yYbecFLTWqaOF1CbcsMndPkhViozaWhidK8tWRfHQJ84IAA1yR1Ju9locL6CSjZ6yV/opksMmuDYso2Vxn6kVLLwcJYJWTwt34IllSbyUXklsQrUGm5GXkjgn6ZeBgn6ZeC3pm3iu2yrFK/8n5LZVVxhGfPOf6GE3nByUXG11a4Sb0TZKpLEou+dsyCbWhTYoRnhdDKzglgn6ZeDjTTs1YvlJ/8Ajp3zM5ZqKoV4S7rJiLyDsYylomydGGJ3eiOTm5OyyjsjCqUYKc+/QznnCOOnNfqyJ2MpReTsXOKqwxJWkShTG1Py+q7GG8dSg6oyauot/RwlCTjJWZTBRb/N0Ms4007NWOGmrBTTt/JGYt1GndMsdUYjLJLBL0vwcaa1TXyWdPJ47XysVybbu3cxKEFWpLOWZTeTgAKDIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAJ0Ved3os2ThBzkoow3g7U/HDBba/JOr+dJT4IOrK+i8FlKWOMouxv1OuyUoJ/UuOPToQeVyZwdas2nscOa1jgsAAALqU4uOCZydFrOOaK5JxdmTozako6pm9C2NmK7lz0z3INNcorBZ1CSqZborNW2vy5uPoSTysmmccUIK6RVWTjaKVo7E6/9cRTkqkcEtTp2qFk3X0k0sP1/QrWUslAJTi4SsyJyZRcXh9S0F9JqpTcHqigs6f+z6NjSSxao9nwyMuhyf4xwb6sgTrf2SIFdz/O12XBldAXw/47KC+H/HZfo/ql+zMT6FAB2KcpJI1Em3hEi+tnRTfsZy7qJJJQRSbeuknbj0RCHQlTV5q+izZKnP8A913udi8FPFvJ2RHuy4j4EHGpRy8Pr0+P8/UPk7XjapfnMrL6v50VLdFBDVwUbMro+fkzF8AtnJxqJrhFRZW/n9IjW3Gtteq/5MvqTqRVSOOOpXS/sj8ilNwl7blrgnOM485m3GK1DVkfqTWV/wAkPp4KJfyfyFmxL+T+Thz39RYaOpygl7mc0VfzoqS+TObevX+7ns0sEIdAAdaaSb0ehppNkzhorRxRj+SXyZy/qf4xNvTtKqzP6f3IS6ojCmrtuUXZaIqOxbTuhZ2vsUzlGUUorGCSOAApMk6SvUj8k+p/kl7FcHhmnwW9SrpSRvVc6WaXXP8AQg/qRQADRJgu6Zfk37FUk46lnTytO3Js6X8t8dxGX0kKv9kvkiWV42qN7MrK74uNkk/UyuhKk7VI/JZ1KziyFFXqL2zJdRK87LY2IPGllnu+CL+oqL4Jvp2kUF8P+OzGi+qX7MzIrjTk3mrLlna01K0Y6I7RnaVm8mcrQwyutGSaSobr79f89DH/ALclZZ0/9iKyzp/7Ea+m/wDNH90Sl0FaMnUdk/BOmu3Bylk3sQqykqkrSaINtu7dy92wqtlKK5yyOG1gN3dy+llQbXuZzR07Tg4saFp2tPq0xPoZwdknGTT2OGm008MmXdM/ya9iFVWqSJ9Mv5SehXN4pt8m5Y8aWCfXLIL6mcWpd1EZSasmylal3UtpxsxRjyLM/oZfVEace3+c8uEQnLFJyLabVWm4y1RTJNNp6jULbXFQ+l/3/UxHrz1OHYLFJLk4WUvxjKf0jWqgpTSfTv8AsSbwg52q4losvol1MfyUuSHdlxHwW37lB8o3YbbYTgnlvnoQfDTM4AOcWF3S/sUsu6X9ilm3b/8Anr/n+5BfUwADUJl8v+Migvl/xkUG3rPqj+yIQNEMunfwzOaKLUqTj9FDTTsyeqWa65LpgR6s4XdM85IpL+nyUpPQhoc+emZn0KqitUl8nFqJO8m+WFqjXk05tr1M9iyU3Cs2vslVgpxxw+yut/bI7RqYHZ6M3FbHfKqz6W3/AAyOOE0cof2IgacFqinHRmYqvqlVBRl6v/gzF5AANUkAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFqWxdNQccTu97AFtVvl5aWTDWSt2vk7k6LjF4nK3tYAxXZsluSDWVgVXCTxKWfFisAWWeZLc1gJYAAKzJa3CpFXdpJcHIqMHdyu1okgDbduVvaWURx2Izk5SuzkUm83b6ANbc3Lc+SWC6pKnKKjiat7FOjyem4BZbe7Xua5MJYLnUhOFp5Mpkknk7oAW3ytxuXPqEsHC2k4QeJyztwARqs8uW5LkNZOVcEm5KWfFisAxZPfLdjASwdVm83ZF0Z01TwYm/oAnTe6stJBrJW1T9b8HVNRVoLPlgBXOPMUl/n6jBW3d3Z2Ki3+TsvgAqTw8vkyWVXCSVpWsslYqAJ22OyW5owlgvpzhGGFyvf2KpKKf4yv9AE7L3OKi0uAlgRUW/wApW+idVwm7qVnbgAjG3bBwwuRjnJUW0amF2ejAMVWSrmpRDWSuX8n8nACDeWZJ06jh7rg61TlnF4Xw0AXwtbShLlEWu4UIJ/lPwjlWSlLLRZIAWTwnCKwgl3ORUX/KVvotqSpzSWJq3sAYrvcIuKS569f+zLjllajT3n/gqyi8KjokARdv5XFJLP7/APYwQABUZBZTqYVhkrxAJ12SreYmGshxg84z+mjsVTi7ylf2SANjfFR3qKz/AD/2Yx2ITlik3yRANWUnJ5ZItVSM44ai+0ccI+tW+ADZVvmr86y0RxjoMcYK0M292VgFM7HPCfRGUsHVa+bsXRlTVPBifgAlVc6s4S5DWSmSSeTuWxqRlDDU8gCu6Vbbj37dg1kqkknk7onScIvE5Z8WAMQs2T3JBrKwKuCUnJS+rFYBGye+W7GAlgHYycXdAEU2nlGSyUoVNfxkRwRWs/CANl2eYnKSTZHGODs5/jhirRKwCidkpvLMpYJQUb3lK30WVZQnb8rW9gCyF7jBwwsP9/8AsNZeSqMnGV0WzlTqK98MvgAxXdKMXDqmGs8lUUm83ZFknTcFFStb2AMV27E1hchrJUXUZQgneWu1gBTa6pbl1DWSE1C94u/tYgAQlLc84wZRdSlTgn+V7+xXNR1jK/tYAtne5QUMLC/f/sio85InYpN5uwBSnhki6Uqbp4MT8FLsnk7oAttuduMpcGEsCEnF3RZJ06mbvGQArtlFbHyn2DXcjgin+U/CE53WGKtEAlOzZmMVgwlkgSp4b3lK1npYAphLa84ySZKq4SbkpZ8WKwCVlnmS3NGEsFtGpb8ZabFQBmdspwjF9glhgAFRkAAAAAA//9k=" alt="Paramount" style="width:140px;height:auto;display:block;filter:brightness(0) invert(1);margin-bottom:14px;" />
       </div>
-
-      <nav class="sidebar-nav">
-        <div class="nav-section-label">General</div>
-        <a class="nav-item active" data-page="home" onclick="navigate('home')">
-          <svg class="nav-icon" viewBox="0 0 20 20" fill="none"><path d="M3 9.5L10 3l7 6.5V17a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M7 18v-6h6v6" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
-          <span>Homepage</span>
-        </a>
-
-        <div class="nav-section-label" style="margin-top:1.25rem">Medios</div>
-        <a class="nav-item" data-page="tv" onclick="navigate('tv')">
-          <svg class="nav-icon" viewBox="0 0 20 20" fill="none"><rect x="2" y="4" width="16" height="11" rx="1.5" stroke="currentColor" stroke-width="1.5"/><path d="M7 18h6M10 15v3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-          <span>TV Lineal</span>
-        </a>
-        <a class="nav-item" data-page="ctv" onclick="navigate('ctv')">
-          <svg class="nav-icon" viewBox="0 0 20 20" fill="none"><rect x="2" y="4" width="16" height="11" rx="1.5" stroke="currentColor" stroke-width="1.5"/><path d="M7 18h6M10 15v3M7 9.5l4.5-2.5v5L7 9.5z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          <span>CTV</span>
-        </a>
-        <div class="nav-sub-group" id="ctv-subnav">
-          <a class="nav-sub-item" data-sub="svod" onclick="navigateSub('ctv','svod')"><span class="nav-dot"></span>SVOD</a>
-          <a class="nav-sub-item" data-sub="avod" onclick="navigateSub('ctv','avod')"><span class="nav-dot"></span>AVOD</a>
-          <a class="nav-sub-item" data-sub="bvod" onclick="navigateSub('ctv','bvod')"><span class="nav-dot"></span>BVOD</a>
-          <a class="nav-sub-item" data-sub="fast" onclick="navigateSub('ctv','fast')"><span class="nav-dot"></span>FAST</a>
-          <a class="nav-sub-item" data-sub="pvod" onclick="navigateSub('ctv','pvod')"><span class="nav-dot"></span>PVOD</a>
-        </div>
-
-        <div class="nav-section-label" style="margin-top:1.25rem">Digital</div>
-        <a class="nav-item" data-page="digital" onclick="navigate('digital')">
-          <svg class="nav-icon" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="7" stroke="currentColor" stroke-width="1.5"/><path d="M10 3c0 0-3 3-3 7s3 7 3 7M10 3c0 0 3 3 3 7s-3 7-3 7M3 10h14" stroke="currentColor" stroke-width="1.5"/></svg>
-          <span>Digital</span>
-        </a>
-        <a class="nav-item" data-page="radio" onclick="navigate('radio')">
-          <svg class="nav-icon" viewBox="0 0 20 20" fill="none"><rect x="3" y="8" width="14" height="9" rx="1.5" stroke="currentColor" stroke-width="1.5"/><path d="M6 8V6a4 4 0 018 0v2M8 12.5h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-          <span>Radio &amp; Audio</span>
-        </a>
-      </nav>
-
-      <div class="sidebar-footer">
-        <div class="last-update-box">
-          <div class="last-update-label">Última actualización</div>
-          <div class="last-update-time" id="sidebar-last-update">—</div>
-        </div>
+      <div class="brand-hub">
+        <span class="hub-label">ADSALES HUB</span>
+        <span class="hub-sub">Spain Market Intelligence</span>
       </div>
-    </aside>
+    </div>
 
-    <main class="main">
-      <header class="topbar">
-        <div class="topbar-left">
-          <h1 class="page-title" id="page-title">Homepage</h1>
-          <span class="page-breadcrumb" id="page-breadcrumb">Resumen del mercado publicitario español</span>
-        </div>
-        <div class="topbar-right">
-          <div class="update-info">
-            <svg viewBox="0 0 16 16" fill="none" width="14" height="14"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.5"/><path d="M8 5v3.5l2 1.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-            <span id="last-update-text">Cargando…</span>
+    ${metricCardsHtml(d.metrics)}
+
+    <div class="section-header"><span class="section-title">Inversión y distribución</span></div>
+    <div class="charts-row">
+      <div class="chart-card">
+        <div class="chart-title">Inversión total por año</div>
+        <div class="chart-sub">España 2019–2025 (M€)</div>
+        <div class="legend" id="leg-inv-home"></div>
+        <div style="position:relative;height:200px"><canvas id="c-inv-home" role="img" aria-label="Inversión publicitaria total en España 2019-2025">Tendencia creciente de 13.200M€ en 2019 a 17.400M€ en 2025e.</canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Cuota por medio</div>
+        <div class="chart-sub">2025</div>
+        <div class="legend" id="leg-medio-home"></div>
+        <div style="position:relative;height:200px"><canvas id="c-medio-home" role="img" aria-label="Cuota de inversión por medio en España 2025">Digital 52%, TV 26%, Exterior 8%, Radio 7%, otros.</canvas></div>
+      </div>
+    </div>
+    <div class="charts-row">
+      <div class="chart-card">
+        <div class="chart-title">Crecimiento YoY por medio</div>
+        <div class="chart-sub">%</div>
+        <div style="position:relative;height:185px"><canvas id="c-grow-home" role="img" aria-label="Crecimiento año a año por medio en España">Digital y Exterior crecen; Prensa decrece.</canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Digital: desglose por formato</div>
+        <div class="chart-sub">% s/total digital</div>
+        <div class="legend" id="leg-dig-home"></div>
+        <div style="position:relative;height:185px"><canvas id="c-dig-home" role="img" aria-label="Desglose de inversión digital por formato en España">Search 38%, Social 29%, Display 16%, Vídeo 13%, otros 4%.</canvas></div>
+      </div>
+    </div>`;
+
+  setTimeout(() => {
+    buildBarChart('c-inv-home', d.inversionAnual.labels,
+      [{ label: 'M€', data: d.inversionAnual.data, backgroundColor: d.inversionAnual.data.map((_, i) => i === 6 ? C.blue : C.blue + '88'), borderRadius: 4 }],
+      { yMin: 9000, yFmt: v => v.toLocaleString('es-ES') });
+    document.getElementById('leg-inv-home').innerHTML = `<span class="legend-item"><span class="legend-dot" style="background:${C.blue}"></span>Total inversión (M€)</span>`;
+
+    buildDoughnutChart('c-medio-home', d.cuotaPorMedio.labels, d.cuotaPorMedio.data, d.cuotaPorMedio.colors);
+    document.getElementById('leg-medio-home').innerHTML = legendHtml(d.cuotaPorMedio.labels.slice(0, 4), d.cuotaPorMedio.colors.slice(0, 4));
+
+    buildBarChart('c-grow-home', d.crecimientoYoY.labels,
+      [{ label: '%', data: d.crecimientoYoY.data, backgroundColor: d.crecimientoYoY.data.map(v => v >= 0 ? C.teal + 'cc' : C.coral + 'cc'), borderRadius: 4 }],
+      { yFmt: v => v + '%' });
+
+    buildDoughnutChart('c-dig-home', d.digitalDesglose.labels, d.digitalDesglose.data, d.digitalDesglose.colors);
+    document.getElementById('leg-dig-home').innerHTML = legendHtml(d.digitalDesglose.labels, d.digitalDesglose.colors);
+  }, 80);
+}
+
+// ── TV LINEAL ─────────────────────────────────────────────────────────────────
+function renderTV() {
+  const d = DATA.tv;
+  document.getElementById('content').innerHTML = `
+    <div class="page-intro">
+      <div class="page-intro-text">
+        <h2>TV Lineal — España 2024</h2>
+        <p>Inversión, audiencias, CPM por formato y principales anunciantes en televisión lineal. Fuentes: Infoadex, Kantar Media, Barlovento.</p>
+      </div>
+      <div class="page-intro-stat">
+        <div class="big">1.980 M€</div>
+        <div class="small">Inversión TV lineal 2024</div>
+      </div>
+    </div>
+
+    ${metricCardsHtml(d.metrics)}
+
+    <div class="section-header"><span class="section-title">Inversión y cuotas</span></div>
+    <div class="charts-row">
+      <div class="chart-card">
+        <div class="chart-title">Inversión histórica TV lineal</div>
+        <div class="chart-sub">España 2019–2024 (M€)</div>
+        <div style="position:relative;height:200px"><canvas id="c-tv-inv" role="img" aria-label="Inversión histórica TV lineal España 2019-2024">Tendencia bajista desde 2022.</canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Cuota por cadena</div>
+        <div class="chart-sub">% s/total TV lineal 2024</div>
+        <div class="legend" id="leg-tv-cadena"></div>
+        <div style="position:relative;height:200px"><canvas id="c-tv-cadena" role="img" aria-label="Cuota por cadena TV lineal España 2024">Antena 3 lidera con 27%.</canvas></div>
+      </div>
+    </div>
+    <div class="charts-row">
+      <div class="chart-card">
+        <div class="chart-title">CPM por formato publicitario</div>
+        <div class="chart-sub">€ por mil impresiones</div>
+        <div style="position:relative;height:200px"><canvas id="c-tv-cpm" role="img" aria-label="CPM por formato publicitario en TV España">Especiales 22€, estándar 7€.</canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Audiencia media por franja</div>
+        <div class="chart-sub">% share medio</div>
+        <div style="position:relative;height:200px"><canvas id="c-tv-franja" role="img" aria-label="Audiencia TV por franja horaria en España">Prime time lidera con 30%.</canvas></div>
+      </div>
+    </div>
+
+    <div class="section-header"><span class="section-title">Top anunciantes TV lineal</span></div>
+    <div class="plat-grid">
+      ${d.top_anunciantes.map((a, i) => `
+        <div class="plat-card${i === 0 ? ' featured' : ''}">
+          <div class="plat-header">
+            <span class="plat-name">${a.name}</span>
+            <span class="plat-badge" style="background:#E6F1FB;color:#185FA5">${a.sector}</span>
           </div>
-          <button class="refresh-btn" id="refresh-btn" onclick="refreshData()">
-            <svg id="refresh-icon" viewBox="0 0 16 16" fill="none" width="14" height="14"><path d="M2 8C2 4.7 4.7 2 8 2c2 0 3.8.9 5 2.4M14 8c0 3.3-2.7 6-6 6-2 0-3.8-.9-5-2.4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M12.5 1.5v3h-3M3.5 14.5v-3h3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            Actualizar datos
-          </button>
-        </div>
-      </header>
-      <div class="content" id="content"></div>
-    </main>
-  </div>
+          <div class="plat-stat"><span class="plat-stat-label">Inversión est.</span><span class="plat-stat-val">${a.inv}</span></div>
+          <div class="plat-stat"><span class="plat-stat-label">GRPs estimados</span><span class="plat-stat-val">${a.grps.toLocaleString('es-ES')}</span></div>
+          <div class="plat-stat" style="border:none"><span class="plat-stat-label">Tendencia</span><span class="plat-stat-val ${a.trend === 'up' ? 'trend-up' : a.trend === 'down' ? 'trend-down' : 'trend-stable'}">${a.trend === 'up' ? '↑ Creciendo' : a.trend === 'down' ? '↓ Bajando' : '→ Estable'}</span></div>
+        </div>`).join('')}
+    </div>`;
 
-  <script src="src/data.js"></script>
-  <script src="src/charts.js"></script>
-  <script src="src/pages.js"></script>
-  <script src="src/app.js"></script>
+  setTimeout(() => {
+    buildLineChart('c-tv-inv', d.inversionHistorica.labels,
+      [{ label: 'M€', data: d.inversionHistorica.data, borderColor: C.coral, backgroundColor: C.coral + '22', tension: 0.4, fill: true, pointBackgroundColor: C.coral, pointRadius: 4 }],
+      { yMin: 1600, yFmt: v => v.toLocaleString('es-ES') });
+
+    buildDoughnutChart('c-tv-cadena', d.cuotaPorCadena.labels, d.cuotaPorCadena.data, d.cuotaPorCadena.colors);
+    document.getElementById('leg-tv-cadena').innerHTML = legendHtml(d.cuotaPorCadena.labels, d.cuotaPorCadena.colors);
+
+    buildHBarChart('c-tv-cpm', d.cpmPorFormato.labels, d.cpmPorFormato.data, C.coral, { xFmt: v => v + '€' });
+
+    buildBarChart('c-tv-franja', d.audienciaFranja.labels,
+      [{ label: 'Share %', data: d.audienciaFranja.data, backgroundColor: C.navy + 'cc', borderRadius: 4 }],
+      { yFmt: v => v + '%' });
+  }, 80);
+}
+
+// ── CTV OVERVIEW ──────────────────────────────────────────────────────────────
+function renderCTV(subpage) {
+  if (subpage && DATA.tipos[subpage.toUpperCase()]) {
+    renderCTVTipo(subpage.toUpperCase());
+    return;
+  }
+
+  const d = DATA.ctv;
+  document.getElementById('content').innerHTML = `
+    <div class="page-intro">
+      <div class="page-intro-text">
+        <h2>CTV — Connected TV España 2024</h2>
+        <p>Inversión, plataformas, CPM y cuotas del ecosistema CTV en España. El canal de mayor crecimiento del mercado publicitario nacional.</p>
+      </div>
+      <div class="page-intro-stat">
+        <div class="big">420 M€</div>
+        <div class="small">Inversión CTV 2024 · +44,8%</div>
+      </div>
+    </div>
+
+    ${metricCardsHtml(d.metrics)}
+
+    <div class="section-header"><span class="section-title">Evolución vs TV lineal</span></div>
+    <div class="chart-card full" style="margin-bottom:14px">
+      <div class="chart-title">Inversión TV lineal vs CTV</div>
+      <div class="chart-sub">España 2020–2024 (M€) — barras apiladas</div>
+      <div class="legend" id="leg-ctv-hist"></div>
+      <div style="position:relative;height:230px"><canvas id="c-ctv-hist" role="img" aria-label="Inversión TV lineal vs CTV España 2020-2024">TV lineal se mantiene; CTV crece fuertemente.</canvas></div>
+    </div>
+    <div class="charts-row">
+      <div class="chart-card">
+        <div class="chart-title">Cuota CTV s/total pantalla</div>
+        <div class="chart-sub">% evolución 2020–2024</div>
+        <div style="position:relative;height:185px"><canvas id="c-ctv-share" role="img" aria-label="Evolución cuota CTV sobre total pantalla España">De 3% en 2020 a 17% en 2024.</canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">CPM por tipología</div>
+        <div class="chart-sub">€ vs TV lineal de referencia</div>
+        <div style="position:relative;height:185px"><canvas id="c-ctv-cpm" role="img" aria-label="CPM por tipología CTV vs TV lineal España">BVOD 18€ lidera; TV lineal 7€ de base.</canvas></div>
+      </div>
+    </div>
+
+    <div class="section-header"><span class="section-title">Distribución de inversión por tipología</span></div>
+    <div class="charts-row">
+      <div class="chart-card">
+        <div class="chart-title">Cuota de inversión 2024</div>
+        <div class="chart-sub">% s/total CTV España</div>
+        <div class="legend" id="leg-ctv-tipo"></div>
+        <div style="position:relative;height:200px"><canvas id="c-ctv-tipo" role="img" aria-label="Cuota de inversión CTV por tipología España 2024">AVOD 38%, BVOD 27%, FAST 18%, SVOD 12%, PVOD 5%.</canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Inversión estimada por tipología</div>
+        <div class="chart-sub">M€ 2024</div>
+        <div style="position:relative;height:200px"><canvas id="c-ctv-tipoinv" role="img" aria-label="Inversión estimada por tipología CTV España 2024 en M€">AVOD 160M€, BVOD 113M€, FAST 76M€, SVOD 50M€, PVOD 21M€.</canvas></div>
+      </div>
+    </div>
+
+    <div class="section-header"><span class="section-title">Explorar por tipología</span></div>
+    <div class="tipo-tabs">
+      ${Object.keys(DATA.tipos).map(k => `
+        <div class="tipo-tab" style="border-color:${DATA.tipos[k].color}44" onclick="navigateSub('ctv','${k.toLowerCase()}')"
+          onmouseover="this.style.borderColor='${DATA.tipos[k].color}';this.style.color='${DATA.tipos[k].color}'"
+          onmouseout="this.style.borderColor='${DATA.tipos[k].color}44';this.style.color=''">
+          ${k}
+        </div>`).join('')}
+    </div>`;
+
+  setTimeout(() => {
+    const h = d.inversionHistorica;
+    buildStackedBarChart('c-ctv-hist', h.labels, [
+      { label: 'TV lineal', data: h.tvLineal, backgroundColor: C.coral + 'bb', borderRadius: 4, stack: 's' },
+      { label: 'CTV', data: h.ctv, backgroundColor: C.blue + 'cc', borderRadius: 4, stack: 's' },
+    ], { yFmt: v => v.toLocaleString('es-ES') });
+    document.getElementById('leg-ctv-hist').innerHTML = `
+      <span class="legend-item"><span class="legend-dot" style="background:${C.coral}"></span>TV lineal</span>
+      <span class="legend-item"><span class="legend-dot" style="background:${C.blue}"></span>CTV</span>`;
+
+    buildLineChart('c-ctv-share', d.shareEvolucion.labels,
+      [{ label: '%', data: d.shareEvolucion.data, borderColor: C.blue, backgroundColor: C.blue + '22', tension: 0.4, fill: true, pointBackgroundColor: C.blue, pointRadius: 5 }],
+      { yMin: 0, yMax: 22, yFmt: v => v + '%' });
+
+    buildBarChart('c-ctv-cpm', d.cpmPorTipo.labels,
+      [{ label: '€', data: d.cpmPorTipo.data, backgroundColor: d.cpmPorTipo.colors, borderRadius: 4 }],
+      { yFmt: v => v + '€', yMin: 0 });
+
+    buildDoughnutChart('c-ctv-tipo', d.cuotaTipo.labels, d.cuotaTipo.data, d.cuotaTipo.colors);
+    document.getElementById('leg-ctv-tipo').innerHTML = legendHtml(
+      d.cuotaTipo.labels.map((l, i) => `${l} ${d.cuotaTipo.data[i]}%`), d.cuotaTipo.colors);
+
+    buildBarChart('c-ctv-tipoinv', d.cuotaTipo.labels,
+      [{ label: 'M€', data: [160, 113, 76, 50, 21], backgroundColor: d.cuotaTipo.colors, borderRadius: 4 }],
+      { yFmt: v => v + 'M€' });
+  }, 80);
+}
+
+// ── CTV TIPO DETAIL ───────────────────────────────────────────────────────────
+function renderCTVTipo(tipo) {
+  const t = DATA.tipos[tipo];
+  const plats = t.plataformas;
+
+  document.getElementById('content').innerHTML = `
+    <div class="tipo-banner">
+      <div class="tipo-banner-badge">${tipo}</div>
+      <div class="tipo-banner-text">
+        <div class="tipo-banner-title">${t.label} — España 2024</div>
+        <div class="tipo-banner-desc">${t.desc}</div>
+      </div>
+    </div>
+
+    <div class="tipo-tabs" style="margin-bottom:20px">
+      ${Object.keys(DATA.tipos).map(k => `
+        <div class="tipo-tab${k === tipo ? ' active' : ''}" 
+          style="${k === tipo ? `background:${DATA.tipos[k].color};border-color:${DATA.tipos[k].color};color:#fff` : `border-color:${DATA.tipos[k].color}44`}"
+          onclick="navigateSub('ctv','${k.toLowerCase()}')"
+          ${k !== tipo ? `onmouseover="this.style.borderColor='${DATA.tipos[k].color}';this.style.color='${DATA.tipos[k].color}'" onmouseout="this.style.borderColor='${DATA.tipos[k].color}44';this.style.color=''"` : ''}>
+          ${k}
+        </div>`).join('')}
+    </div>
+
+    ${metricCardsHtml([
+      { label: `Inversión total ${tipo}`, value: `${t.invTotal} M€`, delta: 'España 2024', up: true },
+      { label: 'Plataformas activas', value: `${plats.length}`, delta: 'en España', up: true },
+      { label: 'CPM medio segmento', value: `${Math.round(plats.reduce((a, p) => a + p.cpm, 0) / plats.length)} €`, delta: 'promedio', up: true },
+      { label: 'Alcance líder', value: plats[0].alcance, delta: plats[0].name, up: true },
+    ])}
+
+    <div class="section-header"><span class="section-title">Plataformas del segmento</span></div>
+    <div class="plat-grid">
+      ${plats.map((p, i) => `
+        <div class="plat-card${i === 0 ? ' featured' : ''}" style="${i === 0 ? `border-color:${t.color}55` : ''}">
+          <div class="plat-card-accent" style="${i === 0 ? `background:${t.color}` : ''}"></div>
+          <div class="plat-header">
+            <span class="plat-name">${p.name}</span>
+            <span class="plat-badge" style="background:${t.bg};color:${t.tc}">${tipo}</span>
+          </div>
+          <div class="plat-stat"><span class="plat-stat-label">Cuota s/${tipo}</span><span class="plat-stat-val" style="color:${t.color}">${p.cuota}%</span></div>
+          <div class="plat-stat"><span class="plat-stat-label">Inversión est.</span><span class="plat-stat-val">${p.inv} M€</span></div>
+          <div class="plat-stat"><span class="plat-stat-label">Alcance</span><span class="plat-stat-val">${p.alcance} hogares</span></div>
+          <div class="plat-stat"><span class="plat-stat-label">CPM medio</span><span class="plat-stat-val">${p.cpm} €</span></div>
+          <div class="plat-stat"><span class="plat-stat-label">Rango CPM</span><span class="plat-stat-val">${p.cpmMin}–${p.cpmMax} €</span></div>
+          <div class="plat-stat" style="border:none"><span class="plat-stat-label">Usuarios</span><span class="plat-stat-val">${p.usuarios}</span></div>
+          <div class="plat-note">${p.nota}</div>
+        </div>`).join('')}
+    </div>
+
+    <div class="section-header"><span class="section-title">Comparativa dentro de ${tipo}</span></div>
+    <div class="charts-row">
+      <div class="chart-card">
+        <div class="chart-title">Cuota de inversión</div>
+        <div class="chart-sub">% s/total ${tipo} · España 2024</div>
+        <div class="legend" id="leg-tipo-cuota"></div>
+        <div style="position:relative;height:200px"><canvas id="c-tipo-cuota" role="img" aria-label="Cuota de inversión por plataforma dentro de ${tipo}">Distribución de cuota.</canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Inversión estimada</div>
+        <div class="chart-sub">M€ por plataforma</div>
+        <div style="position:relative;height:200px"><canvas id="c-tipo-inv" role="img" aria-label="Inversión estimada por plataforma dentro de ${tipo}">Millones de euros.</canvas></div>
+      </div>
+    </div>
+    <div class="charts-row">
+      <div class="chart-card">
+        <div class="chart-title">CPM medio por plataforma</div>
+        <div class="chart-sub">€ por mil impresiones</div>
+        <div style="position:relative;height:${Math.max(160, plats.length * 52 + 60)}px"><canvas id="c-tipo-cpm" role="img" aria-label="CPM medio por plataforma dentro de ${tipo}">Euros por mil impresiones.</canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Rango de CPM</div>
+        <div class="chart-sub">Mínimo – máximo por plataforma</div>
+        <div style="position:relative;height:${Math.max(160, plats.length * 52 + 60)}px"><canvas id="c-tipo-range" role="img" aria-label="Rango CPM mínimo y máximo por plataforma dentro de ${tipo}">Rango de CPM.</canvas></div>
+      </div>
+    </div>`;
+
+  const shades = [t.color + 'ff', t.color + 'cc', t.color + '99', t.color + '66', t.color + '44'];
+
+  setTimeout(() => {
+    buildDoughnutChart('c-tipo-cuota', plats.map(p => p.name), plats.map(p => p.cuota), plats.map((_, i) => shades[i] || shades[shades.length - 1]));
+    document.getElementById('leg-tipo-cuota').innerHTML = legendHtml(
+      plats.map(p => `${p.name} ${p.cuota}%`),
+      plats.map((_, i) => shades[i] || shades[shades.length - 1]));
+
+    buildBarChart('c-tipo-inv', plats.map(p => p.name),
+      [{ label: 'M€', data: plats.map(p => p.inv), backgroundColor: plats.map((_, i) => shades[i] || shades[shades.length - 1]), borderRadius: 4 }],
+      { yFmt: v => v + 'M€' });
+
+    buildHBarChart('c-tipo-cpm', plats.map(p => p.name), plats.map(p => p.cpm), t.color, { xFmt: v => v + '€' });
+
+    buildRangeBar('c-tipo-range', plats.map(p => p.name), plats.map(p => p.cpmMin), plats.map(p => p.cpmMax), t.color, { yFmt: v => v + '€' });
+  }, 80);
+}
+
+// ── DIGITAL ────────────────────────────────────────────────────────────────────
+function renderDigital() {
+  const d = DATA.digital;
+  document.getElementById('content').innerHTML = `
+    <div class="page-intro">
+      <div class="page-intro-text">
+        <h2>Digital — España 2025</h2>
+        <p>Inversión digital por formato, CTR, ROAS y tendencias programáticas. Fuentes: IAB Spain, Kantar, eMarketer.</p>
+      </div>
+      <div class="page-intro-stat">
+        <div class="big">9.048 M€</div>
+        <div class="small">Inversión digital 2025e · +10,2%</div>
+      </div>
+    </div>
+
+    ${metricCardsHtml(d.metrics)}
+
+    <div class="section-header"><span class="section-title">Inversión y rendimiento</span></div>
+    <div class="charts-row">
+      <div class="chart-card">
+        <div class="chart-title">Inversión por formato digital</div>
+        <div class="chart-sub">M€ España 2025e</div>
+        <div class="legend" id="leg-dig-fmt"></div>
+        <div style="position:relative;height:210px"><canvas id="c-dig-fmt" role="img" aria-label="Inversión digital por formato España 2025">Search lidera con 3.439M€.</canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">CTR medio por canal</div>
+        <div class="chart-sub">%</div>
+        <div style="position:relative;height:210px"><canvas id="c-dig-ctr" role="img" aria-label="CTR medio por canal digital España">Search 3,5% lidera.</canvas></div>
+      </div>
+    </div>
+    <div class="charts-row">
+      <div class="chart-card">
+        <div class="chart-title">ROAS medio por canal</div>
+        <div class="chart-sub">× retorno por euro invertido</div>
+        <div style="position:relative;height:210px"><canvas id="c-dig-roas" role="img" aria-label="ROAS medio por canal digital España">Email 4,6x y Search 4,1x lideran.</canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Distribución por formato</div>
+        <div class="chart-sub">% s/total digital 2025</div>
+        <div class="legend" id="leg-dig-pie"></div>
+        <div style="position:relative;height:210px"><canvas id="c-dig-pie" role="img" aria-label="Distribución inversión digital por formato España 2025">Search 38%, Social 29%, Display 16%, Video 13%, otros 4%.</canvas></div>
+      </div>
+    </div>`;
+
+  setTimeout(() => {
+    buildHBarChart('c-dig-fmt', d.inversionFormatos.labels, d.inversionFormatos.data, d.inversionFormatos.colors, { xFmt: v => v + 'M€' });
+    document.getElementById('leg-dig-fmt').innerHTML = legendHtml(d.inversionFormatos.labels, d.inversionFormatos.colors);
+
+    buildHBarChart('c-dig-ctr', d.ctrRoas.labels, d.ctrRoas.ctr, C.blue, { xFmt: v => v.toFixed(1) + '%' });
+    buildHBarChart('c-dig-roas', ['Email', 'Search', 'Social', 'Vídeo', 'Display'], d.ctrRoas.roas, C.teal, { xFmt: v => v.toFixed(1) + 'x' });
+
+    const pctData = [38, 29, 16, 13, 4];
+    buildDoughnutChart('c-dig-pie', d.inversionFormatos.labels, pctData, d.inversionFormatos.colors);
+    document.getElementById('leg-dig-pie').innerHTML = legendHtml(d.inversionFormatos.labels.map((l, i) => `${l} ${pctData[i]}%`), d.inversionFormatos.colors);
+  }, 80);
+}
+
+// ── RADIO ──────────────────────────────────────────────────────────────────────
+function renderRadio() {
+  const d = DATA.radio;
+  document.getElementById('content').innerHTML = `
+    <div class="page-intro">
+      <div class="page-intro-text">
+        <h2>Radio y Audio digital — España 2024</h2>
+        <p>Inversión en radio convencional, digital audio y podcast. Fuentes: Infoadex, AIMC EGM, IAB Spain.</p>
+      </div>
+      <div class="page-intro-stat">
+        <div class="big">490 M€</div>
+        <div class="small">Inversión radio 2024 · +4,1%</div>
+      </div>
+    </div>
+
+    ${metricCardsHtml(d.metrics)}
+
+    <div class="section-header"><span class="section-title">Evolución e distribución</span></div>
+    <div class="charts-row">
+      <div class="chart-card">
+        <div class="chart-title">Inversión radio histórica</div>
+        <div class="chart-sub">España 2020–2024 (M€)</div>
+        <div style="position:relative;height:210px"><canvas id="c-radio-inv" role="img" aria-label="Inversión radio España 2020-2024">Tendencia creciente de 380M€ a 490M€.</canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Cuota por cadena</div>
+        <div class="chart-sub">% s/total radio 2024</div>
+        <div class="legend" id="leg-radio-cadena"></div>
+        <div style="position:relative;height:210px"><canvas id="c-radio-cadena" role="img" aria-label="Cuota de inversión por cadena de radio España 2024">Cadena SER lidera con 31%.</canvas></div>
+      </div>
+    </div>`;
+
+  setTimeout(() => {
+    buildLineChart('c-radio-inv', d.inversionHistorica.labels,
+      [{ label: 'M€', data: d.inversionHistorica.data, borderColor: C.amber, backgroundColor: C.amber + '22', tension: 0.4, fill: true, pointBackgroundColor: C.amber, pointRadius: 4 }],
+      { yMin: 320, yFmt: v => v + 'M€' });
+
+    buildDoughnutChart('c-radio-cadena', d.cuotaCadenas.labels, d.cuotaCadenas.data, d.cuotaCadenas.colors);
+    document.getElementById('leg-radio-cadena').innerHTML = legendHtml(
+      d.cuotaCadenas.labels.map((l, i) => `${l} ${d.cuotaCadenas.data[i]}%`), d.cuotaCadenas.colors);
+  }, 80);
+}
+// ─── APP CONTROLLER ──────────────────────────────────────────────────────────
+
+let currentPage = 'home';
+let currentSub = null;
+
+const PAGE_META = {
+  home:    { title: 'Homepage',       breadcrumb: 'Resumen del mercado publicitario español' },
+  tv:      { title: 'TV Lineal',      breadcrumb: 'Inversión, audiencias y CPM · TV convencional' },
+  ctv:     { title: 'CTV',            breadcrumb: 'Connected TV · inversión y plataformas' },
+  digital: { title: 'Digital',        breadcrumb: 'Search, Social, Display, Vídeo online' },
+  radio:   { title: 'Radio & Audio',  breadcrumb: 'Radio convencional y audio digital' },
+};
+
+const TIPO_LABELS = {
+  SVOD: 'SVOD con publicidad',
+  AVOD: 'AVOD',
+  BVOD: 'BVOD',
+  FAST: 'FAST',
+  PVOD: 'PVOD / Pay TV VOD',
+};
+
+function navigate(page) {
+  destroyAllCharts();
+  currentPage = page;
+  currentSub = null;
+
+  // Nav items active state
+  document.querySelectorAll('.nav-item').forEach(el => {
+    el.classList.toggle('active', el.dataset.page === page);
+  });
+
+  // CTV subnav visibility
+  const subnav = document.getElementById('ctv-subnav');
+  subnav.classList.toggle('open', page === 'ctv');
+
+  // Clear sub-item active
+  document.querySelectorAll('.nav-sub-item').forEach(el => el.classList.remove('active'));
+
+  // Update header
+  const meta = PAGE_META[page] || { title: page, breadcrumb: '' };
+  document.getElementById('page-title').textContent = meta.title;
+  document.getElementById('page-breadcrumb').textContent = meta.breadcrumb;
+
+  // Render
+  switch (page) {
+    case 'home':    renderHome(); break;
+    case 'tv':      renderTV(); break;
+    case 'ctv':     renderCTV(null); break;
+    case 'digital': renderDigital(); break;
+    case 'radio':   renderRadio(); break;
+  }
+}
+
+function navigateSub(page, sub) {
+  destroyAllCharts();
+  currentPage = page;
+  currentSub = sub;
+
+  // Parent nav active
+  document.querySelectorAll('.nav-item').forEach(el => {
+    el.classList.toggle('active', el.dataset.page === page);
+  });
+
+  // Subnav open
+  const subnav = document.getElementById('ctv-subnav');
+  subnav.classList.add('open');
+
+  // Sub item active
+  document.querySelectorAll('.nav-sub-item').forEach(el => {
+    el.classList.toggle('active', el.dataset.sub === sub);
+  });
+
+  const tipo = sub.toUpperCase();
+  const tipoLabel = TIPO_LABELS[tipo] || tipo;
+
+  document.getElementById('page-title').textContent = tipo;
+  document.getElementById('page-breadcrumb').textContent = `${tipoLabel} · plataformas y métricas España 2024`;
+
+  renderCTVTipo(tipo);
+}
+
+function updateTimestamp() {
+  const now = DATA.lastUpdate || new Date();
+  const timeStr = now.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+  const dateStr = now.toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' });
+  const full = `${dateStr} · ${timeStr}`;
+  document.getElementById('last-update-text').textContent = full;
+  document.getElementById('sidebar-last-update').textContent = full;
+}
+
+function refreshData() {
+  const btn = document.getElementById('refresh-btn');
+  const icon = document.getElementById('refresh-icon');
+  btn.classList.add('loading');
+  icon.classList.add('spinning');
+
+  setTimeout(() => {
+    simulateDataRefresh();
+    updateTimestamp();
+
+    // Re-render current page
+    destroyAllCharts();
+    if (currentSub) {
+      navigateSub(currentPage, currentSub);
+    } else {
+      navigate(currentPage);
+    }
+
+    btn.classList.remove('loading');
+    icon.classList.remove('spinning');
+  }, 900);
+}
+
+// ─── INIT ─────────────────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  updateTimestamp();
+  navigate('home');
+});
+</script>
 </body>
 </html>
