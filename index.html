@@ -973,6 +973,118 @@ body.locked .login-overlay { display: flex; }
   to { transform: rotate(360deg); }
 }
 
+
+/* Territory selector */
+.brand-hub { position: relative; }
+.territory-selector {
+  margin-top: 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(152,191,255,0.15);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s;
+  user-select: none;
+}
+.territory-selector:hover { background: rgba(255,255,255,0.12); border-color: rgba(152,191,255,0.3); }
+.territory-flag { font-size: 14px; line-height: 1; }
+.territory-name {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--white);
+  letter-spacing: 0.3px;
+}
+.territory-arrow {
+  margin-left: auto;
+  color: rgba(152,191,255,0.7);
+  transition: transform 0.15s;
+}
+.territory-selector.open .territory-arrow { transform: rotate(180deg); }
+
+.territory-dropdown {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  background: #001339;
+  border: 1px solid rgba(152,191,255,0.18);
+  border-radius: 7px;
+  box-shadow: 0 12px 32px rgba(0,0,0,0.5);
+  z-index: 1000;
+  display: none;
+  overflow: hidden;
+}
+.territory-dropdown.open { display: block; }
+.territory-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  font-size: 11px;
+  color: rgba(255,255,255,0.85);
+  cursor: pointer;
+  transition: background 0.12s;
+}
+.territory-option:hover:not(.disabled) { background: rgba(0,100,255,0.18); }
+.territory-option.active { color: var(--white); font-weight: 700; background: rgba(0,100,255,0.12); }
+.territory-option.disabled { cursor: not-allowed; opacity: 0.4; }
+.territory-check { margin-left: auto; color: var(--peak-blue); font-weight: 700; }
+.territory-soon {
+  margin-left: auto;
+  font-size: 9px;
+  color: rgba(255,255,255,0.4);
+  background: rgba(255,255,255,0.07);
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+
+/* Chart hover tooltip */
+.chart-hover-tooltip {
+  position: fixed;
+  background: var(--vista-navy);
+  color: var(--white);
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  z-index: 99999;
+  pointer-events: none;
+  box-shadow: 0 4px 16px rgba(0,10,60,0.3);
+  display: none;
+  min-width: 60px;
+  line-height: 1.3;
+}
+.chart-hover-tooltip .cht-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.85);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 3px;
+}
+.chart-hover-tooltip .cht-dot {
+  display: inline-block;
+  width: 8px; height: 8px;
+  border-radius: 50%;
+}
+.chart-hover-tooltip .cht-value {
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+}
+.chart-hover-tooltip .cht-ds {
+  font-size: 10px;
+  color: rgba(152,191,255,0.8);
+  margin-top: 3px;
+  font-weight: 500;
+}
+
 @media (max-width: 1200px) {
   .metrics-grid { grid-template-columns: repeat(auto-fit, minmax(135px, 1fr)); }
   .plat-grid { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
@@ -988,7 +1100,9 @@ body.locked .login-overlay { display: flex; }
 
 @media (max-width: 750px) {
   .sidebar { width: 64px; flex: 0 0 64px; }
-  .sidebar .hub-label-big, .sidebar .hub-sub, .nav-item span, .nav-sub-item, .nav-section-label, .last-update-box, .refresh-btn-side span, .sidebar-author { display: none; }
+  .sidebar .hub-label-big, .sidebar .hub-sub, .nav-item span, .nav-sub-item, .nav-section-label, .last-update-box, .refresh-btn-side span, .sidebar-author, .sidebar .territory-name, .sidebar .territory-arrow { display: none; }
+  .sidebar .territory-selector { padding: 5px 6px; justify-content: center; }
+  .sidebar .territory-dropdown { left: 64px; right: auto; width: 200px; }
   .refresh-btn-side { padding: 9px 8px; }
   .sidebar-brand { padding: 14px 8px; text-align: center; }
   .nav-item { justify-content: center; padding: 8px; }
@@ -1040,7 +1154,31 @@ body.locked .login-overlay { display: flex; }
       <div class="brand-hub">
         <span class="hub-label-big">AdSales</span>
         <span class="hub-label-big" style="color:var(--peak-blue)">HUB</span>
-        <span class="hub-sub">Spain Market Intelligence</span>
+        <div class="territory-selector" id="territory-selector" onclick="toggleTerritory(event)">
+          <span class="territory-flag" id="territory-flag">🇪🇸</span>
+          <span class="territory-name" id="territory-name">España</span>
+          <svg class="territory-arrow" viewBox="0 0 12 12" width="10" height="10" fill="none"><path d="M3 5l3 3 3-3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="territory-dropdown" id="territory-dropdown">
+          <div class="territory-option active" onclick="selectTerritory('ES', event)">
+            <span>🇪🇸</span><span>España</span><span class="territory-check">✓</span>
+          </div>
+          <div class="territory-option disabled" title="Próximamente">
+            <span>🇵🇹</span><span>Portugal</span><span class="territory-soon">próx.</span>
+          </div>
+          <div class="territory-option disabled" title="Próximamente">
+            <span>🇮🇹</span><span>Italia</span><span class="territory-soon">próx.</span>
+          </div>
+          <div class="territory-option disabled" title="Próximamente">
+            <span>🇫🇷</span><span>Francia</span><span class="territory-soon">próx.</span>
+          </div>
+          <div class="territory-option disabled" title="Próximamente">
+            <span>🇩🇪</span><span>Alemania</span><span class="territory-soon">próx.</span>
+          </div>
+          <div class="territory-option disabled" title="Próximamente">
+            <span>🇬🇧</span><span>Reino Unido</span><span class="territory-soon">próx.</span>
+          </div>
+        </div>
       </div>
     </div>
     <nav class="sidebar-nav">
@@ -1059,7 +1197,7 @@ body.locked .login-overlay { display: flex; }
         <span>CTV</span>
       </a>
       <div class="nav-sub-group" id="ctv-subnav">
-        <a class="nav-sub-item" data-sub="svod" onclick="navigateSub('ctv','svod')"><span class="nav-dot"></span>SVOD</a>
+        <a class="nav-sub-item" data-sub="svod" onclick="navigateSub('ctv','svod')"><span class="nav-dot"></span>SVOD Ads</a>
         <a class="nav-sub-item" data-sub="avod" onclick="navigateSub('ctv','avod')"><span class="nav-dot"></span>AVOD</a>
         <a class="nav-sub-item" data-sub="bvod" onclick="navigateSub('ctv','bvod')"><span class="nav-dot"></span>BVOD</a>
         <a class="nav-sub-item" data-sub="fast" onclick="navigateSub('ctv','fast')"><span class="nav-dot"></span>FAST</a>
@@ -1149,11 +1287,22 @@ function getCanvas(id){ return typeof id==='string' ? document.getElementById(id
 
 function setupCanvas(canvas){
   const parent = canvas.parentElement;
-  const w = (parent && parent.clientWidth > 10) ? parent.clientWidth : 400;
-  const h = (parent && parent.clientHeight > 10) ? parent.clientHeight : 250;
-  canvas.width = w; canvas.height = h;
-  canvas.style.width = w+'px'; canvas.style.height = h+'px';
-  return canvas.getContext('2d');
+  // True responsive: get parent width every time, clamp minimum at 200
+  const w = Math.max(200, (parent && parent.clientWidth > 10) ? parent.clientWidth : 400);
+  const h = Math.max(180, (parent && parent.clientHeight > 10) ? parent.clientHeight : 250);
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = w * dpr;
+  canvas.height = h * dpr;
+  canvas.style.width = '100%';
+  canvas.style.height = h + 'px';
+  canvas.style.display = 'block';
+  canvas.style.maxWidth = '100%';
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+  // Store logical size on canvas for downstream code
+  canvas._logicalW = w;
+  canvas._logicalH = h;
+  return ctx;
 }
 
 // Redraw all charts on window resize so they remain responsive
@@ -1203,17 +1352,27 @@ Chart.prototype._drawBar = function(){
   const labels = cfg.data.labels;
 
   const ctx = setupCanvas(this.canvas);
-  const W = this.canvas.width, H = this.canvas.height;
+  const W = this.canvas._logicalW, H = this.canvas._logicalH;
+
+  // Reset bar regions for hover detection
+  this._barRects = [];
+  this._yFmt = (opts.scales&&opts.scales.y&&opts.scales.y.ticks&&opts.scales.y.ticks.callback) || (v => v);
+  this._xFmt = (opts.scales&&opts.scales.x&&opts.scales.x.ticks&&opts.scales.x.ticks.callback) || (v => v);
+  this._horiz = horiz;
 
   // measure labels
   ctx.font = '11px Arial,sans-serif';
   let maxLabelW = 0;
   labels.forEach(l=>{ const m=ctx.measureText(String(l)).width; if(m>maxLabelW) maxLabelW=m; });
 
+  // Detect if any label is long (will need rotation) and adjust bottom padding
+  const maxLblWidth = labels.reduce((m, l) => Math.max(m, ctx.measureText(String(l)).width), 0);
+  const approxBarW = (W - 80) / Math.max(1, labels.length);
+  const needsRotation = !horiz && maxLblWidth > approxBarW - 4;
   const pad = {
-    top: 16,
+    top: 22,
     right: 16,
-    bottom: horiz ? 36 : 48,
+    bottom: horiz ? 36 : (needsRotation ? 62 : 44),
     left: horiz ? maxLabelW+10 : 52
   };
 
@@ -1277,18 +1436,21 @@ Chart.prototype._drawBar = function(){
         const v = ds.data[i]||0;
         const color = Array.isArray(ds.backgroundColor)?ds.backgroundColor[di]||ds.backgroundColor[0]:ds.backgroundColor;
         ctx.fillStyle = color || '#005FFF';
+        const dsLabel = ds.label || '';
         if(horiz){
           const y0 = pad.top + i*groupW + barPad;
           const bH = groupW - barPad*2;
           const x0 = toPixel(base);
           const bW = toPixel(base+v) - x0;
           ctx.beginPath(); ctx.rect(x0, y0, bW, bH, 3); ctx.fill();
+          this._barRects.push({ x: x0, y: y0, w: bW, h: bH, label: String(lbl), value: v, dsLabel: dsLabel, color: color });
         } else {
           const x0 = pad.left + i*groupW + barPad;
           const bW = groupW - barPad*2;
           const y0 = toPixel(base+v);
           const bH = toPixel(base) - y0;
           ctx.beginPath(); ctx.rect(x0, y0, bW, bH, 3); ctx.fill();
+          this._barRects.push({ x: x0, y: y0, w: bW, h: bH, label: String(lbl), value: v, dsLabel: dsLabel, color: color });
         }
         base += v;
       });
@@ -1300,20 +1462,60 @@ Chart.prototype._drawBar = function(){
         const v = ds.data[i]||0;
         const color = Array.isArray(ds.backgroundColor)?ds.backgroundColor[i]||ds.backgroundColor[0]:ds.backgroundColor;
         ctx.fillStyle = color || '#005FFF';
+        const dsLabel = ds.label || '';
         if(horiz){
           const y0 = pad.top + i*groupW + barPad + di*bW2;
           const bH = bW2*0.9;
           const x0 = v>=0 ? zeroLine : toPixel(v);
           const bW = Math.abs(toPixel(v) - zeroLine);
           ctx.beginPath(); ctx.rect(x0, y0, bW, bH, 3); ctx.fill();
+          this._barRects.push({ x: x0, y: y0, w: bW, h: bH, label: String(lbl), value: v, dsLabel: dsLabel, color: color });
         } else {
           const x0 = pad.left + i*groupW + barPad + di*bW2;
           const bW = bW2*0.9;
           const y0 = v>=0 ? toPixel(v) : zeroLine;
           const bH = Math.abs(toPixel(v) - zeroLine);
           ctx.beginPath(); ctx.rect(x0, y0, bW, bH, 3); ctx.fill();
+          this._barRects.push({ x: x0, y: y0, w: bW, h: bH, label: String(lbl), value: v, dsLabel: dsLabel, color: color });
         }
       });
+    });
+  }
+
+  // Register hover handler once
+  if (!this._hoverRegistered) {
+    this._hoverRegistered = true;
+    const self = this;
+    const canvas = this.canvas;
+    canvas.style.cursor = 'default';
+    canvas.addEventListener('mousemove', function(e) {
+      if (!self._barRects || !self._barRects.length) return;
+      const rect = canvas.getBoundingClientRect();
+      const scale = canvas._logicalW ? rect.width / canvas._logicalW : 1;
+      const mx = (e.clientX - rect.left) / scale;
+      const my = (e.clientY - rect.top) / scale;
+      let hovered = null;
+      for (const r of self._barRects) {
+        const x = Math.min(r.x, r.x + r.w);
+        const w = Math.abs(r.w);
+        const y = Math.min(r.y, r.y + r.h);
+        const h = Math.abs(r.h);
+        if (mx >= x && mx <= x + w && my >= y && my <= y + h) {
+          hovered = r;
+          break;
+        }
+      }
+      if (hovered) {
+        canvas.style.cursor = 'pointer';
+        showBarTooltip(e.clientX, e.clientY, hovered, self._yFmt, self._xFmt, self._horiz);
+      } else {
+        canvas.style.cursor = 'default';
+        hideBarTooltip();
+      }
+    });
+    canvas.addEventListener('mouseleave', function() {
+      canvas.style.cursor = 'default';
+      hideBarTooltip();
     });
   }
 
@@ -1327,7 +1529,18 @@ Chart.prototype._drawBar = function(){
     } else {
       ctx.textAlign='center'; ctx.textBaseline='top';
       const txt = String(lbl);
-      ctx.fillText(txt.length>12?txt.slice(0,11)+'…':txt, pad.left+mid, H-pad.bottom+4);
+      // If bar is narrow OR label is long, rotate the text
+      const labelW = ctx.measureText(txt).width;
+      if (labelW > groupW - 4) {
+        ctx.save();
+        ctx.translate(pad.left+mid, H-pad.bottom+4);
+        ctx.rotate(-Math.PI/6); // -30 degrees
+        ctx.textAlign='right'; ctx.textBaseline='top';
+        ctx.fillText(txt, 0, 0);
+        ctx.restore();
+      } else {
+        ctx.fillText(txt, pad.left+mid, H-pad.bottom+4);
+      }
     }
   });
 
@@ -1337,6 +1550,37 @@ Chart.prototype._drawBar = function(){
   if(horiz){ ctx.moveTo(zeroLine,pad.top); ctx.lineTo(zeroLine,pad.top+plotH); }
   else { ctx.moveTo(pad.left,zeroLine); ctx.lineTo(pad.left+plotW,zeroLine); }
   ctx.stroke();
+
+  // Show value labels on top of bars (for single-dataset charts with reasonable bar width)
+  if (this._barRects && this._barRects.length && datasets.length === 1) {
+    // Only show if there's enough space (bars wider than ~26px for vertical, or tall enough)
+    const sampleBar = this._barRects[0];
+    const enoughSpace = horiz ? sampleBar.h > 14 : sampleBar.w > 22;
+    if (enoughSpace) {
+      ctx.font = 'bold 10px Arial,sans-serif';
+      ctx.fillStyle = '#000a3c';
+      this._barRects.forEach(r => {
+        const lblText = (this._xFmt && horiz) ? this._xFmt(r.value) : (this._yFmt && !horiz ? this._yFmt(r.value) : (r.value + '%'));
+        // If it's a "%" chart (values 0-100), append %
+        let display = String(lblText);
+        if (typeof r.value === 'number' && r.value <= 100 && opts.scales && opts.scales.y && opts.scales.y.ticks && opts.scales.y.ticks.callback) {
+          const tickSample = opts.scales.y.ticks.callback(50);
+          if (String(tickSample).indexOf('%') >= 0) {
+            display = Math.round(r.value) + '%';
+          }
+        }
+        if (horiz) {
+          ctx.textAlign = 'left';
+          ctx.textBaseline = 'middle';
+          ctx.fillText(display, r.x + r.w + 4, r.y + r.h / 2);
+        } else {
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'bottom';
+          ctx.fillText(display, r.x + r.w / 2, r.y - 3);
+        }
+      });
+    }
+  }
 };
 
 // ── LINE ─────────────────────────────────────────────────────────────────────
@@ -1346,7 +1590,7 @@ Chart.prototype._drawLine = function(){
   const datasets = cfg.data.datasets;
   const labels = cfg.data.labels;
   const ctx = setupCanvas(this.canvas);
-  const W=this.canvas.width, H=this.canvas.height;
+  const W=this.canvas._logicalW, H=this.canvas._logicalH;
   const yFmt=(opts.scales&&opts.scales.y&&opts.scales.y.ticks&&opts.scales.y.ticks.callback)||(v=>v);
   const pad={top:16,right:20,bottom:36,left:52};
   const plotW=W-pad.left-pad.right, plotH=H-pad.top-pad.bottom;
@@ -1425,7 +1669,7 @@ Chart.prototype._drawDoughnut = function(){
   const colors=cfg.data.datasets[0].backgroundColor||[];
   const labels=cfg.data.labels||[];
   const ctx=setupCanvas(this.canvas);
-  const W=this.canvas.width, H=this.canvas.height;
+  const W=this.canvas._logicalW, H=this.canvas._logicalH;
   const cx=W/2, cy=H/2;
   const outerR=Math.min(W,H)*0.42;
   const cutout=parseFloat(opts.cutout)||60;
@@ -1499,6 +1743,41 @@ Chart.prototype._drawDoughnut = function(){
     ctx.fillText(labelText, lx, ly);
   });
 };
+
+
+// ── Chart hover tooltip ──────────────────────────────────────────────────────
+let __chartTooltip = null;
+function ensureChartTooltip() {
+  if (__chartTooltip) return __chartTooltip;
+  const el = document.createElement('div');
+  el.className = 'chart-hover-tooltip';
+  document.body.appendChild(el);
+  __chartTooltip = el;
+  return el;
+}
+function showBarTooltip(x, y, rect, yFmt, xFmt, horiz) {
+  const el = ensureChartTooltip();
+  const fmt = horiz ? (xFmt || (v=>v)) : (yFmt || (v=>v));
+  let valTxt;
+  try { valTxt = fmt(rect.value); } catch(e) { valTxt = rect.value; }
+  el.innerHTML = `
+    <div class="cht-label"><span class="cht-dot" style="background:${rect.color}"></span>${rect.label}</div>
+    <div class="cht-value">${valTxt}</div>
+    ${rect.dsLabel ? `<div class="cht-ds">${rect.dsLabel}</div>` : ''}
+  `;
+  el.style.display = 'block';
+  // Position with offset; flip if near right/bottom edges
+  const ttRect = el.getBoundingClientRect();
+  let left = x + 12;
+  let top = y + 12;
+  if (left + ttRect.width > window.innerWidth - 8) left = x - ttRect.width - 12;
+  if (top + ttRect.height > window.innerHeight - 8) top = y - ttRect.height - 12;
+  el.style.left = left + 'px';
+  el.style.top = top + 'px';
+}
+function hideBarTooltip() {
+  if (__chartTooltip) __chartTooltip.style.display = 'none';
+}
 
 global.Chart = Chart;
 window.Chart = Chart;
@@ -1585,7 +1864,7 @@ const DATA = {
   // ── CTV OVERVIEW ──────────────────────────────────────────────────────────
   ctv: {
     metrics: [
-      { id: 'ctv-inv-2025', label: 'Inversión CTV 2025', value: '623 M€', delta: '+48% vs 2024', up: true, tip: 'Inversión publicitaria total en Connected TV en España durante 2025. Incluye SVOD-Ads, AVOD, BVOD, FAST y PVOD.' },
+      { id: 'ctv-inv-2025', label: 'Inversión CTV 2025', value: '654 M€', delta: '+56% vs 2024', up: true, tip: 'Inversión publicitaria total en Connected TV en España durante 2025. Incluye SVOD-Ads, AVOD, BVOD, FAST y PVOD.' },
       { id: 'ctv-inv-2026e', label: 'Inversión CTV 2026e', value: '820 M€', delta: '+32% vs 2025', up: true, tip: 'Proyección de inversión CTV para 2026 según IAB Spain. Sigue siendo el medio que más crece en España.' },
       { id: 'ctv-cuota', label: 'Cuota s/total pantalla', value: '25%', delta: '+7,5pp vs 2024', up: true, tip: 'Porcentaje del total de inversión en TV pantalla (lineal + CTV) que se destina a CTV.' },
       { id: 'ctv-cpm', label: 'CPM medio CTV', value: '13€', delta: '+86% vs TV lineal', up: true, tip: 'Coste medio por mil impresiones en plataformas CTV. Significativamente superior al TV lineal por mejor targeting y completion rate.' },
@@ -1595,15 +1874,15 @@ const DATA = {
     inversionHistorica: {
       labels: ['2020', '2021', '2022', '2023', '2024', '2025'],
       tvLineal: [1900, 2050, 2100, 2050, 1980, 1910],
-      ctv: [60, 105, 185, 290, 420, 623],
+      ctv: [60, 105, 185, 290, 420, 654],
     },
     cuotaTipo: {
-      labels: ['AVOD', 'BVOD', 'FAST', 'SVOD ads', 'PVOD'],
-      data: [31, 25, 26, 14, 5],
+      labels: ['AVOD', 'BVOD', 'FAST', 'SVOD Ads', 'PVOD'],
+      data: [30, 24, 24, 18, 4],
       colors: ['#005FFF', '#D85A30', '#1D9E75', '#7F77DD', '#BA7517'],
     },
     cpmPorTipo: {
-      labels: ['TV lineal', 'BVOD', 'SVOD ads', 'PVOD', 'AVOD', 'FAST'],
+      labels: ['TV lineal', 'BVOD', 'SVOD Ads', 'PVOD', 'AVOD', 'FAST'],
       data: [7, 18, 16, 14, 11, 8],
       colors: ['#888780', '#D85A30', '#7F77DD', '#BA7517', '#005FFF', '#1D9E75'],
     },
@@ -1617,30 +1896,41 @@ const DATA = {
   tipos: {
     SVOD: {
       color: '#7F77DD', bg: '#EEEDFE', tc: '#3C3489',
-      label: 'SVOD con publicidad',
-      invTotal: 85,
+      label: 'SVOD Ads',
+      invTotal: 116,
       desc: 'Plataformas de suscripción con tier publicitario a menor precio. Audiencia premium de alta intención. En España el tier ad crece rápidamente con Netflix y Prime Video liderando.',
       plataformas: [
         {
-          name: 'Netflix Ads', alcance: '58%', hogares: 8.7, inv: 41, cuota: 48, cpm: 16, cpmMin: 13, cpmMax: 20,
+          name: 'Netflix Ads', alcance: '58%', hogares: 8.7, inv: 41, cuota: 35, cpm: 16, cpmMin: 13, cpmMax: 20,
           usuarios: '4,5M suscriptores ad-tier', trend: 'up',
           nota: 'Lanzado en ES en Nov 2022. Viewability >90%. Formatos: pre-roll 15/30s, mid-roll.',
+          fuente: 'Netflix Q1 2026 earnings + IAB Spain + Kantar Media',
           comercializa: 'Netflix Advertising (venta directa) + Microsoft Advertising (partner programático global)',
           topAnunciantes: ['Procter & Gamble', 'L\'Oréal', 'Mercedes-Benz', 'Coca-Cola', 'Samsung']
         },
         {
-          name: 'Prime Video Ads', alcance: '52%', hogares: 7.8, inv: 28, cuota: 33, cpm: 14, cpmMin: 11, cpmMax: 18,
-          usuarios: '3,8M suscriptores', trend: 'up',
-          nota: 'Amazon introdujo ads en ES en Q1 2024. Integración con Amazon retail data para targeting preciso.',
+          name: 'Prime Video Ads', alcance: '64%', hogares: 9.6, inv: 45, cuota: 39, cpm: 14, cpmMin: 11, cpmMax: 18,
+          usuarios: '6,5M suscriptores con ads (default)', trend: 'up',
+          nota: 'Amazon activó ads por defecto en ES en abril 2024. Mayor alcance del tier-ad en España al activarse para todos los suscriptores Prime salvo upgrade. Integración con Amazon retail data para targeting preciso.',
+          fuente: 'Amazon Ads + Nielsen Ad Intel + IAB Spain',
           comercializa: 'Amazon Ads (venta directa propia)',
           topAnunciantes: ['Amazon (own brands)', 'Unilever', 'Volkswagen', 'PepsiCo', 'El Corte Inglés']
         },
         {
-          name: 'SkyShowtime', alcance: '18%', hogares: 2.7, inv: 16, cuota: 19, cpm: 14, cpmMin: 11, cpmMax: 17,
+          name: 'SkyShowtime', alcance: '18%', hogares: 2.7, inv: 16, cuota: 14, cpm: 14, cpmMin: 11, cpmMax: 17,
           usuarios: '2,4M suscriptores totales', trend: 'up',
           nota: 'JV Paramount Global + Comcast/Sky. Tier ad lanzado en abril 2024 a 4,99€/mes (39,99€/año). Contenido exclusivo Paramount + Universal + Sky.',
-          comercializa: 'SkyShowtime España + Paramount Advertising (sinergias con Pluto TV)',
+          fuente: 'Comcast NBCU + Paramount Skydance + análisis Pulsa',
+          comercializa: 'Pulsa (joint-venture Paramount + Comcast/Sky para publicidad en España)',
           topAnunciantes: ['Telefónica', 'L\'Oréal', 'Mercedes-Benz', 'Mahou-San Miguel', 'Banco Santander']
+        },
+        {
+          name: 'Disney+ Ads', alcance: '24%', hogares: 3.6, inv: 14, cuota: 12, cpm: 15, cpmMin: 12, cpmMax: 19,
+          usuarios: '3,0M suscriptores', trend: 'up',
+          nota: 'Tier con anuncios lanzado en España nov 2023 a 5,99€/mes. Contenido familiar premium (Disney, Pixar, Marvel, Star Wars, Nat Geo). Audiencia hogares con hijos.',
+          fuente: 'Disney+ + IAB Spain + Kantar Media',
+          comercializa: 'Disney Advertising Sales (venta directa) + The Trade Desk (programática)',
+          topAnunciantes: ['Procter & Gamble', 'Danone', 'Lego', 'McDonald\'s', 'Renault']
         },
       ],
     },
@@ -1654,6 +1944,7 @@ const DATA = {
           name: 'YouTube', alcance: '74%', hogares: 12.5, inv: 159, cuota: 82, cpm: 11, cpmMin: 7, cpmMax: 15,
           usuarios: '34M usuarios/mes', trend: 'stable',
           nota: 'Líder absoluto del AVOD en España. CTV (pantalla TV) ya supone el 35% del consumo total. Formatos: skippable, non-skippable, bumper, masthead.',
+          fuente: 'Google internal + IAB Spain + comScore España',
           comercializa: 'Google Ads (auto-servicio + venta directa Google para grandes cuentas)',
           topAnunciantes: ['Procter & Gamble', 'Telefónica', 'El Corte Inglés', 'L\'Oréal', 'Volkswagen Group', 'Unilever']
         },
@@ -1661,6 +1952,7 @@ const DATA = {
           name: 'Otros AVOD', alcance: '13%', hogares: 2.0, inv: 34, cuota: 18, cpm: 8, cpmMin: 5, cpmMax: 11,
           usuarios: 'Diversas apps', trend: 'stable',
           nota: 'Apps de catálogo on-demand con publicidad (excluye plataformas FAST tipo Pluto TV o Samsung TV Plus).',
+          fuente: 'IAB Spain + análisis interno',
           comercializa: 'Múltiples comercializadoras según plataforma',
           topAnunciantes: ['Mix de anunciantes locales y regionales']
         },
@@ -1676,6 +1968,7 @@ const DATA = {
           name: 'Atresplayer', alcance: '44%', hogares: 7.3, inv: 76, cuota: 49, cpm: 18, cpmMin: 14, cpmMax: 22,
           usuarios: '5,2M usuarios/mes', trend: 'up',
           nota: 'Antena 3, La Sexta. Catch-up + contenido exclusivo. Líder BVOD en ES. CPM premium justificado por audiencia TV fiel.',
+          fuente: 'Atresmedia Publicidad + comScore + Kantar',
           comercializa: 'Atresmedia Publicidad (venta directa)',
           topAnunciantes: ['El Corte Inglés', 'Procter & Gamble', 'Coca-Cola', 'Banco Santander', 'Volkswagen', 'L\'Oréal']
         },
@@ -1683,6 +1976,7 @@ const DATA = {
           name: 'Mitele', alcance: '37%', hogares: 6.1, inv: 39, cuota: 25, cpm: 17, cpmMin: 13, cpmMax: 21,
           usuarios: '4,4M usuarios/mes', trend: 'stable',
           nota: 'Telecinco, Cuatro (Mediaset). Fuerte en entretenimiento masivo y reality. Gran volumen de GRPs digitales.',
+          fuente: 'Publiespaña + Kantar Media + comScore',
           comercializa: 'Publiespaña / Mediaset España Publicidad (venta directa)',
           topAnunciantes: ['Procter & Gamble', 'Mercadona', 'ING', 'Renault', 'Danone', 'Telefónica']
         },
@@ -1690,6 +1984,7 @@ const DATA = {
           name: 'RTVE Play', alcance: '40%', hogares: 6.6, inv: 28, cuota: 18, cpm: 10, cpmMin: 7, cpmMax: 13,
           usuarios: '4,8M usuarios/mes', trend: 'up',
           nota: 'Plataforma pública. Sin suscripción. CPM más bajo por política de servicio público. Alta confianza de marca.',
+          fuente: 'RTVE Comercial + Barlovento + comScore',
           comercializa: 'RTVE Comercial (venta directa, normativa pública)',
           topAnunciantes: ['Patrocinio limitado por normativa', 'Loterías y Apuestas', 'ONCE', 'Marcas institucionales']
         },
@@ -1697,6 +1992,7 @@ const DATA = {
           name: 'TV autonómicas', alcance: '23%', hogares: 3.8, inv: 14, cuota: 9, cpm: 9, cpmMin: 6, cpmMax: 12,
           usuarios: 'Suma 3Cat, À Punt, ETB...', trend: 'stable',
           nota: 'Audiencias localizadas de alto valor para campañas regionales o con targeting geográfico.',
+          fuente: 'FORTA + estimaciones autonómicas',
           comercializa: 'Comercializadoras autonómicas (3Cat Comercial, EITB Media, À Punt Media…)',
           topAnunciantes: ['Caixabank', 'Bodegas y D.O. locales', 'Turismo regional', 'Industria autonómica']
         },
@@ -1712,41 +2008,46 @@ const DATA = {
           name: 'Pluto TV', alcance: '20%', hogares: 3.1, inv: 55, cuota: 34, cpm: 9, cpmMin: 6, cpmMax: 13,
           usuarios: '2,1M usuarios/mes', trend: 'up',
           nota: 'Paramount Skydance. Plataforma FAST + AVOD on-demand. Más de 100 canales lineales temáticos en España. Sinergia con Paramount+.',
-          comercializa: 'Paramount Advertising España (venta directa) + Magnite (programática)',
+          fuente: 'Pulsa + Paramount Skydance + IAB Spain',
+          comercializa: 'Pulsa (joint-venture Paramount + Comcast/Sky) + Magnite (programática)',
           topAnunciantes: ['Renault', 'Telefónica', 'Mahou-San Miguel', 'Carrefour', 'BBVA'],
-          canales: ['Pluto TV Cine', 'Pluto TV Series', 'Pluto TV Comedia', 'Pluto TV Reality', 'MTV Hits', 'MTV Tattoo a dos', 'Comedy Central', 'Nickelodeon', 'CSI', 'NCIS', 'Top Gear', 'CNN en Español', 'Pluto TV Deportes', 'Pluto TV Documentales', 'Forever Kids', 'Dragon Ball Z', 'El Mueble', 'BBC Series', 'Monster High', 'Pluto TV Kids']
+          totalCanales: 120, canalesDestacados: ['Pluto TV Cine', 'Pluto TV Acción', 'Pluto TV Romance', 'Pluto TV Comedia', 'Pluto TV Series', 'Pluto TV Drama', 'Pluto TV Reality', 'MTV Hits', 'MTV 00s', 'MTV Tattoo a dos', 'Comedy Central', 'Nickelodeon', 'NickToons', 'CSI', 'NCIS', 'Star Trek', 'Top Gear', 'BBC Series', 'BBC Earth', 'Dragon Ball Z', 'Forever Kids', 'Monster High', 'CNN en Español', 'Bloomberg TV+', 'Pluto TV Deportes', 'MMA Combate', 'Pluto TV Documentales', 'Historia y Sucesos', 'El Mueble', 'Cocina ABC']
         },
         {
           name: 'Samsung TV Plus', alcance: '24%', hogares: 3.9, inv: 48, cuota: 30, cpm: 8, cpmMin: 5, cpmMax: 11,
           usuarios: '2,7M activos/mes', trend: 'up',
           nota: 'Integrado en todos los Smart TVs Samsung. +70 canales en ES. Crece con la base instalada de televisores.',
+          fuente: 'Samsung Ads + Magnite + FreeWheel + comScore',
           comercializa: 'Samsung Ads (venta directa) + Magnite, FreeWheel (programática)',
           topAnunciantes: ['Samsung (own)', 'Procter & Gamble', 'Telefónica', 'L\'Oréal', 'Volkswagen', 'Coca-Cola'],
-          canales: ['Antena 3 Noticias 24h', 'CNN en Español', 'Bloomberg TV', 'Euronews', 'Pluto TV Cine', 'AMC en Español', 'XTRM Action', 'Fast & Fun Box', 'Rakuten Action', 'TBS Movies', 'Samsung Music', 'iConcerts', 'Stingray Karaoke', 'Tastemade', 'Cocina ABC', 'World Poker Tour', 'Outside TV', 'Pet Collective', 'Cars TV', 'Toon Goggles Kids']
+          totalCanales: 172, canalesDestacados: ['Antena 3 Noticias 24h', 'laSexta Noticias 24h', 'RTVE Noticias', 'RTVE Cine', 'RTVE Crimen', 'RTVE Somos Cine', 'CNN en Español', 'Bloomberg TV', 'Euronews', 'France 24', 'Top Gear', 'Baywatch', 'AMC en Español', 'XTRM Action', 'TBS Movies', 'Rakuten Action', 'Cine Friki', 'Samsung Music', 'Stingray Karaoke', 'Tastemade', 'Cocina ABC', 'World Poker Tour', 'Outside TV', 'Pitufo TV', 'Just for Laughs Gags', 'Pet Collective', 'Cars TV', 'Toon Goggles Kids', 'Ideas en 5 Minutos', 'TV Azteca']
         },
         {
           name: 'LG Channels', alcance: '19%', hogares: 3.0, inv: 30, cuota: 19, cpm: 8, cpmMin: 5, cpmMax: 10,
           usuarios: '2,1M activos/mes', trend: 'up',
           nota: 'LG WebOS. Similar a Samsung TV Plus. Crecimiento paralelo a ventas de TV LG en España.',
+          fuente: 'LG Ad Solutions + Xandr (Microsoft)',
           comercializa: 'LG Ad Solutions + Xandr (Microsoft)',
           topAnunciantes: ['LG (own)', 'Telefónica', 'Mahou-San Miguel', 'BBVA', 'Renault'],
-          canales: ['Pluto TV Cine', 'Pluto TV Series', 'Rakuten Stories', 'XTRM', 'AMC en Español', 'Bloomberg TV', 'Euronews', 'France 24', 'NHK World', 'Insight TV', 'Tastemade', 'Cocina ABC', 'Rakuten Kids', 'Toon Goggles', 'Stingray Music', 'iConcerts', 'Top Gear', 'Motorvision TV']
+          totalCanales: 80, canalesDestacados: ['Pluto TV Cine', 'Pluto TV Series', 'Rakuten Stories', 'XTRM Action', 'AMC en Español', 'Bloomberg TV', 'Euronews', 'France 24', 'NHK World', 'Insight TV', 'Tastemade', 'Cocina ABC', 'Rakuten Kids', 'Toon Goggles', 'Stingray Music', 'iConcerts', 'Top Gear', 'Motorvision TV', 'Cinevault', 'Crime+Investigation']
         },
         {
           name: 'Rakuten TV (FAST)', alcance: '11%', hogares: 1.7, inv: 17, cuota: 10, cpm: 7, cpmMin: 4, cpmMax: 9,
           usuarios: '1,2M usuarios/mes', trend: 'stable',
           nota: 'Sede en ES. Combina FAST con TVOD. Fuerte en cine europeo y contenido premium de catálogo.',
+          fuente: 'Rakuten Advertising + análisis interno',
           comercializa: 'Rakuten Advertising (venta directa)',
           topAnunciantes: ['Rakuten (own)', 'Renault', 'Vodafone', 'Mango', 'Adidas'],
-          canales: ['Rakuten Action Movies', 'Rakuten Drama', 'Rakuten Comedy', 'Rakuten Stories', 'Rakuten Kids', 'Rakuten Documentaries', 'Rakuten Anime', 'Rakuten Asia', 'Bloomberg', 'Euronews']
+          totalCanales: 50, canalesDestacados: ['Rakuten Action Movies', 'Rakuten Drama', 'Rakuten Comedy', 'Rakuten Stories', 'Rakuten Kids', 'Rakuten Documentaries', 'Rakuten Anime', 'Rakuten Asia', 'Bloomberg TV', 'Euronews', 'France 24', 'CGTN', 'XTRM Action', 'Motorvision', 'Filmrise']
         },
         {
           name: 'Otros FAST', alcance: '5%', hogares: 0.8, inv: 10, cuota: 7, cpm: 6, cpmMin: 4, cpmMax: 8,
           usuarios: 'Philips, Hisense...', trend: 'stable',
           nota: 'Fabricantes de TV menores con canales FAST integrados en sus interfaces nativas.',
+          fuente: 'Vidaa + Titan OS + Philips Ads',
           comercializa: 'Múltiples partners (Vidaa, Titan OS, Philips)',
           topAnunciantes: ['Anunciantes locales y de nicho'],
-          canales: ['Selección variable según fabricante']
+          totalCanales: null, canalesDestacados: ['Selección variable según fabricante']
         },
       ],
     },
@@ -1760,6 +2061,7 @@ const DATA = {
           name: 'Movistar+', alcance: '20%', hogares: 3.4, inv: 19, cuota: 67, cpm: 16, cpmMin: 12, cpmMax: 20,
           usuarios: '3,8M hogares suscritos', trend: 'stable',
           nota: 'Líder PVOD en ES. Inventario muy limitado y selectivo, lo que justifica CPM premium. Targeting 1st party Telefónica.',
+          fuente: 'Telefónica Movistar Ad Solutions + Nielsen',
           comercializa: 'Telefónica Movistar Ad Solutions (venta directa)',
           topAnunciantes: ['Banco Santander', 'BBVA', 'Volkswagen Premium', 'BMW', 'Iberdrola', 'L\'Oréal Luxe']
         },
@@ -1767,6 +2069,7 @@ const DATA = {
           name: 'Orange TV / Max', alcance: '8%', hogares: 1.4, inv: 7, cuota: 24, cpm: 14, cpmMin: 10, cpmMax: 17,
           usuarios: '1,5M hogares', trend: 'down',
           nota: 'En proceso de integración con HBO Max tras alianza Warner Bros. Discovery. Transición de producto.',
+          fuente: 'Orange Advertising + Warner Bros. Discovery Ad Sales',
           comercializa: 'Orange Advertising + Warner Bros. Discovery Ad Sales (HBO Max)',
           topAnunciantes: ['Orange (own)', 'Mercedes-Benz', 'IKEA', 'Loewe', 'Caixabank']
         },
@@ -1774,6 +2077,7 @@ const DATA = {
           name: 'Vodafone TV', alcance: '5%', hogares: 0.9, inv: 3, cuota: 9, cpm: 13, cpmMin: 9, cpmMax: 16,
           usuarios: '900K hogares', trend: 'down',
           nota: 'Mercado más pequeño. Integración progresiva con plataformas OTT externas. Futuro incierto.',
+          fuente: 'Vodafone Business + estimaciones internas',
           comercializa: 'Vodafone Business Solutions Ads',
           topAnunciantes: ['Vodafone (own)', 'Anunciantes nicho premium']
         },
@@ -1840,8 +2144,8 @@ const DATA = {
   ctvNews: [
     {
       date: '15 May 2026', source: 'IAB Spain', tags: ['PUBLICIDAD', 'INVERSIÓN'],
-      title: 'La inversión en CTV en España supera los 620M€ en 2025',
-      summary: 'El estudio anual de IAB Spain confirma un crecimiento del 38,1% del CTV frente al año anterior, alcanzando los 623M€ en 2025. AVOD lidera con YouTube como referencia, mientras que FAST se consolida como el segmento que más rápido crece impulsado por Pluto TV y Samsung TV Plus.',
+      title: 'La inversión en CTV en España supera los 637M€ en 2025',
+      summary: 'El estudio anual de IAB Spain confirma un crecimiento del 38,1% del CTV frente al año anterior, alcanzando los 654M€ en 2025. AVOD lidera con YouTube como referencia, mientras que FAST se consolida como el segmento que más rápido crece impulsado por Pluto TV y Samsung TV Plus.',
       url: 'https://iabspain.es'
     },
     {
@@ -2063,17 +2367,34 @@ function buildHBarChart(id, labels, data, color, opts = {}) {
 }
 
 function buildDoughnutChart(id, labels, data, colors) {
+  // Now renders as vertical bars showing % of each segment (replaced doughnut)
   destroyChart(id);
   const ctx = document.getElementById(id);
   if (!ctx) return;
+  const total = data.reduce((a, b) => a + b, 0) || 1;
+  // Calculate percentages, but values may already be percentages — if total is ~100, treat as %
+  const isAlreadyPct = Math.abs(total - 100) < 2;
+  const percentages = isAlreadyPct ? data.slice() : data.map(v => (v / total) * 100);
+
   CHART_INSTANCES[id] = new Chart(ctx, {
-    type: 'doughnut',
-    data: { labels, datasets: [{ data, backgroundColor: colors, borderWidth: 2, borderColor: '#fff' }] },
+    type: 'bar',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: '%',
+        data: percentages,
+        backgroundColor: colors,
+        borderRadius: 4,
+      }],
+    },
     options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: { legend: { display: false } },
-      cutout: '60%',
+      indexAxis: 'x',
+      scales: {
+        y: {
+          min: 0,
+          ticks: { callback: v => Math.round(v) + '%', font: { size: 11 } },
+        },
+      },
     },
   });
 }
@@ -2236,11 +2557,11 @@ function renderHome() {
     <div class="page-intro">
       <div class="page-intro-text">
         <h2>Mercado publicitario español — 2025</h2>
-        <p>Datos consolidados de inversión, audiencias y KPIs de rendimiento para el mercado español. Fuentes: Infoadex, IAB Spain, AIMC, Kantar Media.</p>
+        <p>Datos del mercado publicitario español durante el año completo 2025 (ene–dic) con proyección 2026. Fuentes: Infoadex, IAB Spain, AIMC, Kantar Media.</p>
       </div>
       <div class="page-intro-stat">
         <div class="big">17.400 M€</div>
-        <div class="small">Inversión cerrada 2025 · Infoadex</div>
+        <div class="small">Inversión total 2025 · Infoadex</div>
       </div>
     </div>
 
@@ -2250,31 +2571,31 @@ function renderHome() {
     <div class="charts-row">
       <div class="chart-card${newCardClass('home-chart-inv')}">
         <div class="chart-title">Inversión total por año${infoTip('Evolución histórica anual de la inversión publicitaria total en España. Datos Infoadex con 2026 estimado.')}${isNew('home-chart-inv')}</div>
-        <div class="chart-sub">España 2019–2026e (M€)</div>
+        <div class="chart-sub">España · M€ · cifras anuales 2019–2026e · Infoadex</div>
         <div class="legend" id="leg-inv-home"></div>
-        <div style="position:relative;height:210px;min-height:210px"><canvas id="c-inv-home" role="img" aria-label="Inversión publicitaria total en España 2019-2025">Tendencia creciente de 13.200M€ en 2019 a 17.400M€ en 2025e.</canvas></div>
+        <div style="position:relative;height:210px;min-height:210px;width:100%;overflow:hidden"><canvas id="c-inv-home" role="img" aria-label="Inversión publicitaria total en España 2019-2025">Tendencia creciente de 13.200M€ en 2019 a 17.400M€ en 2025e.</canvas></div>
         <div class="chart-source">Fuente: Infoadex · Estudio de la inversión publicitaria en España</div>
       </div>
       <div class="chart-card${newCardClass('home-chart-medio')}">
         <div class="chart-title">Cuota por medio${infoTip('Reparto porcentual de la inversión publicitaria total entre los principales medios en 2025.')}${isNew('home-chart-medio')}</div>
-        <div class="chart-sub">2025 · cierre Infoadex</div>
+        <div class="chart-sub">% s/total · ene–dic 2025 · Infoadex</div>
         <div class="legend" id="leg-medio-home"></div>
-        <div style="position:relative;height:210px;min-height:210px"><canvas id="c-medio-home" role="img" aria-label="Cuota de inversión por medio en España 2025">Digital 52%, TV 26%, Exterior 8%, Radio 7%, otros.</canvas></div>
+        <div style="position:relative;height:210px;min-height:210px;width:100%;overflow:hidden"><canvas id="c-medio-home" role="img" aria-label="Cuota de inversión por medio en España 2025">Digital 52%, TV 26%, Exterior 8%, Radio 7%, otros.</canvas></div>
         <div class="chart-source">Fuente: Infoadex · Resumen anual 2025–2026e</div>
       </div>
     </div>
     <div class="charts-row">
       <div class="chart-card">
         <div class="chart-title">Crecimiento YoY por medio${infoTip('Variación porcentual de la inversión publicitaria respecto al año anterior, desglosada por medio.')}</div>
-        <div class="chart-sub">%</div>
-        <div style="position:relative;height:200px;min-height:200px"><canvas id="c-grow-home" role="img" aria-label="Crecimiento año a año por medio en España">Digital y Exterior crecen; Prensa decrece.</canvas></div>
+        <div class="chart-sub">% YoY · 2025 vs 2024 · Infoadex</div>
+        <div style="position:relative;height:200px;min-height:200px;width:100%;overflow:hidden"><canvas id="c-grow-home" role="img" aria-label="Crecimiento año a año por medio en España">Digital y Exterior crecen; Prensa decrece.</canvas></div>
         <div class="chart-source">Fuente: Infoadex + IAB Spain · Variación interanual</div>
       </div>
       <div class="chart-card">
         <div class="chart-title">Digital: desglose por formato${infoTip('Distribución porcentual de la inversión digital entre Search, Social, Display, Vídeo y otros formatos.')}</div>
-        <div class="chart-sub">% s/total digital</div>
+        <div class="chart-sub">% s/total digital · 2025 · IAB Spain</div>
         <div class="legend" id="leg-dig-home"></div>
-        <div style="position:relative;height:200px;min-height:200px"><canvas id="c-dig-home" role="img" aria-label="Desglose de inversión digital por formato en España">Search 38%, Social 29%, Display 16%, Vídeo 13%, otros 4%.</canvas></div>
+        <div style="position:relative;height:200px;min-height:200px;width:100%;overflow:hidden"><canvas id="c-dig-home" role="img" aria-label="Desglose de inversión digital por formato en España">Search 38%, Social 29%, Display 16%, Vídeo 13%, otros 4%.</canvas></div>
         <div class="chart-source">Fuente: IAB Spain · Estudio inversión publicidad digital 2025</div>
       </div>
     </div>`;
@@ -2303,8 +2624,8 @@ function renderTV() {
   document.getElementById('content').innerHTML = `
     <div class="page-intro">
       <div class="page-intro-text">
-        <h2>TV Lineal — España 2025</h2>
-        <p>Inversión, audiencias, CPM por formato y principales anunciantes en televisión lineal. Cierre 2025 + proyección 2026. Fuentes: Infoadex, Kantar Media, Barlovento.</p>
+        <h2>TV Lineal — ene–dic 2025</h2>
+        <p>Inversión publicitaria en TV lineal durante el año completo 2025 (ene–dic), audiencias, CPM por formato y principales anunciantes. Fuentes: Infoadex, Kantar Media, Barlovento.</p>
       </div>
       <div class="page-intro-stat">
         <div class="big">1.910 M€</div>
@@ -2318,29 +2639,29 @@ function renderTV() {
     <div class="charts-row">
       <div class="chart-card${newCardClass('tv-chart-inv')}">
         <div class="chart-title">Inversión histórica TV lineal${infoTip('Evolución anual de la inversión publicitaria en TV lineal española. Fuente: Infoadex.')}${isNew('tv-chart-inv')}</div>
-        <div class="chart-sub">España 2019–2025 (M€)</div>
-        <div style="position:relative;height:210px;min-height:210px"><canvas id="c-tv-inv" role="img" aria-label="Inversión histórica TV lineal España 2019-2025">Tendencia bajista desde 2022.</canvas></div>
+        <div class="chart-sub">España · M€ · histórico 2019–2025 · Infoadex</div>
+        <div style="position:relative;height:210px;min-height:210px;width:100%;overflow:hidden"><canvas id="c-tv-inv" role="img" aria-label="Inversión histórica TV lineal España 2019-2025">Tendencia bajista desde 2022.</canvas></div>
         <div class="chart-source">Fuente: Infoadex · Inversión TV convencional España</div>
       </div>
       <div class="chart-card">
         <div class="chart-title">Cuota por cadena${infoTip('Porcentaje de inversión publicitaria que recibe cada cadena de TV durante 2025.')}</div>
-        <div class="chart-sub">% s/total TV lineal 2025</div>
+        <div class="chart-sub">% s/total TV lineal · ene–dic 2025 · Kantar Media</div>
         <div class="legend" id="leg-tv-cadena"></div>
-        <div style="position:relative;height:210px;min-height:210px"><canvas id="c-tv-cadena" role="img" aria-label="Cuota por cadena TV lineal España 2025">Antena 3 lidera con 27%.</canvas></div>
+        <div style="position:relative;height:210px;min-height:210px;width:100%;overflow:hidden"><canvas id="c-tv-cadena" role="img" aria-label="Cuota por cadena TV lineal España 2025">Antena 3 lidera con 27%.</canvas></div>
         <div class="chart-source">Fuente: Kantar Media · Cuota de inversión por cadena</div>
       </div>
     </div>
     <div class="charts-row">
       <div class="chart-card">
         <div class="chart-title">CPM por formato publicitario${infoTip('Coste medio por mil impactos según formato: spot 20s, 30s, patrocinio, etc.')}</div>
-        <div class="chart-sub">€ por mil impresiones</div>
-        <div style="position:relative;height:210px;min-height:210px"><canvas id="c-tv-cpm" role="img" aria-label="CPM por formato publicitario en TV España">Especiales 22€, estándar 7€.</canvas></div>
+        <div class="chart-sub">€ por mil impresiones · tarifa media 2025</div>
+        <div style="position:relative;height:210px;min-height:210px;width:100%;overflow:hidden"><canvas id="c-tv-cpm" role="img" aria-label="CPM por formato publicitario en TV España">Especiales 22€, estándar 7€.</canvas></div>
         <div class="chart-source">Fuente: Análisis interno · Tarifas medias TV España 2025</div>
       </div>
       <div class="chart-card">
         <div class="chart-title">Audiencia media por franja</div>
         <div class="chart-sub">% share medio</div>
-        <div style="position:relative;height:210px;min-height:210px"><canvas id="c-tv-franja" role="img" aria-label="Audiencia TV por franja horaria en España">Prime time lidera con 30%.</canvas></div>
+        <div style="position:relative;height:210px;min-height:210px;width:100%;overflow:hidden"><canvas id="c-tv-franja" role="img" aria-label="Audiencia TV por franja horaria en España">Prime time lidera con 30%.</canvas></div>
         <div class="chart-source">Fuente: Kantar Media + Barlovento · Audiencia media por franja</div>
       </div>
     </div>
@@ -2386,12 +2707,12 @@ function renderCTV(subpage) {
   document.getElementById('content').innerHTML = `
     <div class="page-intro">
       <div class="page-intro-text">
-        <h2>CTV — Connected TV España 2025</h2>
-        <p>Inversión, plataformas, CPM y cuotas del ecosistema CTV en España. Cierre 2025 + proyección 2026. El canal de mayor crecimiento del mercado publicitario nacional.</p>
+        <h2>CTV — Connected TV · ene–dic 2025</h2>
+        <p>Inversión publicitaria CTV en España durante el año completo 2025 (ene–dic), plataformas, CPM y cuotas del ecosistema CTV. Cierre 2025 + proyección 2026. El canal de mayor crecimiento del mercado publicitario nacional.</p>
       </div>
       <div class="page-intro-stat">
-        <div class="big">623 M€</div>
-        <div class="small">Inversión CTV 2025 · +48% vs 2024</div>
+        <div class="big">654 M€</div>
+        <div class="small">Inversión CTV 2025 · +56% vs 2024</div>
       </div>
     </div>
 
@@ -2400,22 +2721,22 @@ function renderCTV(subpage) {
     <div class="section-header"><span class="section-title">Evolución vs TV lineal</span></div>
     <div class="chart-card full" style="margin-bottom:14px">
       <div class="chart-title">Inversión TV lineal vs CTV${infoTip('Comparativa de inversión publicitaria entre TV lineal (en declive) y CTV (en fuerte crecimiento) en España.')}${isNew('ctv-chart-hist')}</div>
-      <div class="chart-sub">España 2020–2025 (M€) — barras apiladas</div>
+      <div class="chart-sub">España · M€ · histórico 2020–2025 · Infoadex + IAB Spain</div>
       <div class="legend" id="leg-ctv-hist"></div>
-      <div style="position:relative;height:230px"><canvas id="c-ctv-hist" role="img" aria-label="Inversión TV lineal vs CTV España 2020-2025">TV lineal se mantiene; CTV crece fuertemente.</canvas></div>
+      <div style="position:relative;height:230px;width:100%;overflow:hidden"><canvas id="c-ctv-hist" role="img" aria-label="Inversión TV lineal vs CTV España 2020-2025">TV lineal se mantiene; CTV crece fuertemente.</canvas></div>
         <div class="chart-source">Fuente: Infoadex + IAB Spain · TV lineal vs CTV 2020–2024</div>
     </div>
     <div class="charts-row">
       <div class="chart-card">
         <div class="chart-title">Cuota CTV s/total pantalla${infoTip('Porcentaje de la inversión total en TV pantalla que va a CTV. Crece año tras año.')}${isNew('ctv-chart-share')}</div>
-        <div class="chart-sub">% evolución 2020–2025</div>
-        <div style="position:relative;height:200px;min-height:200px"><canvas id="c-ctv-share" role="img" aria-label="Evolución cuota CTV sobre total pantalla España">De 3% en 2020 a 25% en 2025.</canvas></div>
+        <div class="chart-sub">% s/total TV pantalla · evolución 2020–2025</div>
+        <div style="position:relative;height:200px;min-height:200px;width:100%;overflow:hidden"><canvas id="c-ctv-share" role="img" aria-label="Evolución cuota CTV sobre total pantalla España">De 3% en 2020 a 25% en 2025.</canvas></div>
         <div class="chart-source">Fuente: IAB Spain · Estudio anual de vídeo conectado</div>
       </div>
       <div class="chart-card">
         <div class="chart-title">CPM por tipología${infoTip('Coste medio por mil impresiones según tipología de plataforma CTV. PVOD es la más cara, FAST la más asequible.')}</div>
         <div class="chart-sub">€ vs TV lineal de referencia</div>
-        <div style="position:relative;height:200px;min-height:200px"><canvas id="c-ctv-cpm" role="img" aria-label="CPM por tipología CTV vs TV lineal España">BVOD 18€ lidera; TV lineal 7€ de base.</canvas></div>
+        <div style="position:relative;height:200px;min-height:200px;width:100%;overflow:hidden"><canvas id="c-ctv-cpm" role="img" aria-label="CPM por tipología CTV vs TV lineal España">BVOD 18€ lidera; TV lineal 7€ de base.</canvas></div>
         <div class="chart-source">Fuente: GroupM + análisis interno · CPM CTV España</div>
       </div>
     </div>
@@ -2426,13 +2747,13 @@ function renderCTV(subpage) {
         <div class="chart-title">Cuota de inversión 2025${infoTip('Reparto de la inversión CTV entre las cinco tipologías de plataforma.')}</div>
         <div class="chart-sub">% s/total CTV España 2025</div>
         <div class="legend" id="leg-ctv-tipo"></div>
-        <div style="position:relative;height:210px;min-height:210px"><canvas id="c-ctv-tipo" role="img" aria-label="Cuota de inversión CTV por tipología España 2025">AVOD 31%, BVOD 25%, FAST 26%, SVOD 14%, PVOD 5%.</canvas></div>
+        <div style="position:relative;height:210px;min-height:210px;width:100%;overflow:hidden"><canvas id="c-ctv-tipo" role="img" aria-label="Cuota de inversión CTV por tipología España 2025">AVOD 30%, BVOD 24%, FAST 24%, SVOD Ads 18%, PVOD 4%.</canvas></div>
         <div class="chart-source">Fuente: IAB Spain + eMarketer · Inversión por tipología CTV</div>
       </div>
       <div class="chart-card">
         <div class="chart-title">Inversión estimada por tipología${infoTip('Inversión absoluta por tipología CTV en millones de euros durante 2025.')}</div>
         <div class="chart-sub">M€ 2025</div>
-        <div style="position:relative;height:210px;min-height:210px"><canvas id="c-ctv-tipoinv" role="img" aria-label="Inversión estimada por tipología CTV España 2025 en M€">AVOD 193M€, BVOD 156M€, FAST 160M€, SVOD 85M€, PVOD 29M€.</canvas></div>
+        <div style="position:relative;height:210px;min-height:210px;width:100%;overflow:hidden"><canvas id="c-ctv-tipoinv" role="img" aria-label="Inversión estimada por tipología CTV España 2025 en M€">AVOD 193M€, BVOD 156M€, FAST 160M€, SVOD Ads 116M€, PVOD 29M€.</canvas></div>
         <div class="chart-source">Fuente: IAB Spain · Estimación inversión por tipología 2025</div>
       </div>
     </div>
@@ -2479,6 +2800,12 @@ function renderCTV(subpage) {
 }
 
 // ── CTV TIPO DETAIL ───────────────────────────────────────────────────────────
+
+function tipoLabel(key) {
+  if (key === 'SVOD') return 'SVOD Ads';
+  return key;
+}
+
 function renderCTVTipo(tipo) {
   const t = DATA.tipos[tipo];
   const plats = t.plataformas;
@@ -2487,7 +2814,7 @@ function renderCTVTipo(tipo) {
     <div class="tipo-banner">
       <div class="tipo-banner-badge">${tipo}</div>
       <div class="tipo-banner-text">
-        <div class="tipo-banner-title">${t.label} — España 2025</div>
+        <div class="tipo-banner-title">${t.label} — ${currentTerritory.name} 2025</div>
         <div class="tipo-banner-desc">${t.desc}</div>
       </div>
     </div>
@@ -2503,7 +2830,7 @@ function renderCTVTipo(tipo) {
     </div>
 
     ${metricCardsHtml([
-      { label: `Inversión total ${tipo}`, value: `${t.invTotal} M€`, delta: 'España 2025', up: true },
+      { label: `Inversión total ${tipo}`, value: `${t.invTotal} M€`, delta: 'ene-dic 2025 · España', up: true },
       { label: 'Plataformas activas', value: `${plats.length}`, delta: 'en España', up: true },
       { label: 'CPM medio segmento', value: `${Math.round(plats.reduce((a, p) => a + p.cpm, 0) / plats.length)} €`, delta: 'promedio', up: true },
       { label: 'Alcance líder', value: plats[0].alcance, delta: plats[0].name, up: true },
@@ -2516,7 +2843,7 @@ function renderCTVTipo(tipo) {
           <div class="plat-card-accent" style="${i === 0 ? `background:${t.color}` : ''}"></div>
           <div class="plat-header">
             <span class="plat-name">${p.name}${p.name === 'SkyShowtime' ? isNew('svod-skyshowtime') : ''}${p.name === 'Pluto TV' ? isNew('fast-pluto') : ''}</span>
-            <span class="plat-badge" style="background:${t.bg};color:${t.tc}">${tipo}</span>
+            <span class="plat-badge" style="background:${t.bg};color:${t.tc}">${tipoLabel(tipo)}</span>
           </div>
           <div class="plat-stat"><span class="plat-stat-label">Cuota s/${tipo}</span><span class="plat-stat-val" style="color:${t.color}">${p.cuota}%</span></div>
           <div class="plat-stat"><span class="plat-stat-label">Inversión est.</span><span class="plat-stat-val">${p.inv} M€</span></div>
@@ -2535,10 +2862,15 @@ function renderCTVTipo(tipo) {
             <div class="plat-section-label">Top anunciantes</div>
             <div class="plat-anunciantes">${p.topAnunciantes.map(a => `<span class="plat-anunciante-pill">${a}</span>`).join('')}</div>
           </div>` : ''}
-          ${p.canales && p.canales.length ? `
+          ${p.fuente ? `
           <div class="plat-section">
-            <div class="plat-section-label">Canales disponibles · ${p.canales.length}</div>
-            <div class="plat-canales-list">${p.canales.map(c => `<span class="canal-chip">${c}</span>`).join('')}</div>
+            <div class="plat-section-label">Fuente</div>
+            <div class="plat-comercializa" style="font-size:10px;color:var(--text-muted);font-style:italic;font-weight:500">${p.fuente}</div>
+          </div>` : ''}
+          ${p.canalesDestacados && p.canalesDestacados.length ? `
+          <div class="plat-section">
+            <div class="plat-section-label">${p.totalCanales ? p.totalCanales + ' canales disponibles · destacados' : 'Canales destacados'}</div>
+            <div class="plat-canales-list">${p.canalesDestacados.map(c => `<span class="canal-chip">${c}</span>`).join('')}</div>
           </div>` : ''}
         </div>`).join('')}
     </div>
@@ -2547,29 +2879,29 @@ function renderCTVTipo(tipo) {
     <div class="charts-row">
       <div class="chart-card">
         <div class="chart-title">Cuota de inversión${infoTip('Reparto porcentual entre las plataformas dentro de la tipología.')}</div>
-        <div class="chart-sub">% s/total ${tipo} · España 2025</div>
+        <div class="chart-sub">% s/total ${tipo} · ene–dic 2025</div>
         <div class="legend" id="leg-tipo-cuota"></div>
-        <div style="position:relative;height:210px;min-height:210px"><canvas id="c-tipo-cuota" role="img" aria-label="Cuota de inversión por plataforma dentro de ${tipo}">Distribución de cuota.</canvas></div>
+        <div style="position:relative;height:210px;min-height:210px;width:100%;overflow:hidden"><canvas id="c-tipo-cuota" role="img" aria-label="Cuota de inversión por plataforma dentro de ${tipo}">Distribución de cuota.</canvas></div>
         <div class="chart-source">Fuente: Análisis interno · Cuota por plataforma</div>
       </div>
       <div class="chart-card">
         <div class="chart-title">Inversión estimada${infoTip('Inversión absoluta por plataforma en millones de euros durante 2025.')}</div>
-        <div class="chart-sub">M€ por plataforma</div>
-        <div style="position:relative;height:210px;min-height:210px"><canvas id="c-tipo-inv" role="img" aria-label="Inversión estimada por plataforma dentro de ${tipo}">Millones de euros.</canvas></div>
+        <div class="chart-sub">M€ por plataforma · ene–dic 2025</div>
+        <div style="position:relative;height:210px;min-height:210px;width:100%;overflow:hidden"><canvas id="c-tipo-inv" role="img" aria-label="Inversión estimada por plataforma dentro de ${tipo}">Millones de euros.</canvas></div>
         <div class="chart-source">Fuente: IAB Spain + estimaciones internas</div>
       </div>
     </div>
     <div class="charts-row">
       <div class="chart-card">
         <div class="chart-title">CPM medio por plataforma${infoTip('Coste medio por mil impresiones de cada plataforma. Comparable directamente.')}</div>
-        <div class="chart-sub">€ por mil impresiones</div>
-        <div style="position:relative;height:${Math.max(160, plats.length * 52 + 60)}px"><canvas id="c-tipo-cpm" role="img" aria-label="CPM medio por plataforma dentro de ${tipo}">Euros por mil impresiones.</canvas></div>
+        <div class="chart-sub">€ por mil impresiones · tarifa media 2025</div>
+        <div style="position:relative;height:${Math.max(160, plats.length * 52 + 60)}px;width:100%;overflow:hidden"><canvas id="c-tipo-cpm" role="img" aria-label="CPM medio por plataforma dentro de ${tipo}">Euros por mil impresiones.</canvas></div>
         <div class="chart-source">Fuente: Tarifas oficiales de plataformas + análisis interno</div>
       </div>
       <div class="chart-card">
         <div class="chart-title">Rango de CPM${infoTip('Rango entre el CPM mínimo y máximo aplicable por plataforma según formato y demanda.')}</div>
-        <div class="chart-sub">Mínimo – máximo por plataforma</div>
-        <div style="position:relative;height:${Math.max(160, plats.length * 52 + 60)}px"><canvas id="c-tipo-range" role="img" aria-label="Rango CPM mínimo y máximo por plataforma dentro de ${tipo}">Rango de CPM.</canvas></div>
+        <div class="chart-sub">Mínimo – máximo por plataforma · tarifas 2025</div>
+        <div style="position:relative;height:${Math.max(160, plats.length * 52 + 60)}px;width:100%;overflow:hidden"><canvas id="c-tipo-range" role="img" aria-label="Rango CPM mínimo y máximo por plataforma dentro de ${tipo}">Rango de CPM.</canvas></div>
         <div class="chart-source">Fuente: Tarifas oficiales de plataformas</div>
       </div>
     </div>`;
@@ -2631,8 +2963,8 @@ function renderCompare() {
   document.getElementById('content').innerHTML = `
     <div class="page-intro">
       <div class="page-intro-text">
-        <h2>Comparativa de plataformas CTV — España 2025</h2>
-        <p>Vista comparativa de todas las plataformas CTV con sus métricas clave. Filtra por tipología o ordena por cualquier columna para identificar la mejor opción para cada campaña.</p>
+        <h2>Comparativa de plataformas CTV — ene–dic 2025</h2>
+        <p>Vista comparativa de todas las plataformas CTV con métricas anuales 2025. Todas las cifras de inversión se refieren al año completo 2025 (ene–dic). CPM = tarifa media efectiva 2025. Filtra por tipología o ordena por cualquier columna.</p>
       </div>
       <div class="page-intro-stat">
         <div class="big">${allPlats.length}</div>
@@ -2647,7 +2979,7 @@ function renderCompare() {
         ${Object.keys(DATA.tipos).map(k => {
           const count = DATA.tipos[k].plataformas.length;
           const c = DATA.tipos[k].color;
-          return `<span class="filter-chip" data-filter="${k}" onclick="filterCompare('${k}')" style="--chip-color:${c}">${k} (${count})</span>`;
+          return `<span class="filter-chip" data-filter="${k}" onclick="filterCompare('${k}')" style="--chip-color:${c}">${tipoLabel(k)} (${count})</span>`;
         }).join('')}
       </div>
     </div>
@@ -2675,14 +3007,14 @@ function renderCompare() {
     <div class="charts-row">
       <div class="chart-card">
         <div class="chart-title">Inversión por plataforma</div>
-        <div class="chart-sub">M€ · todas las plataformas CTV ordenadas</div>
-        <div style="position:relative;height:${Math.max(220, allPlats.length * 26 + 60)}px;min-height:220px"><canvas id="c-compare-inv" role="img" aria-label="Inversión por plataforma comparativa">Comparativa de inversión.</canvas></div>
+        <div class="chart-sub">M€ por plataforma · ene–dic 2025</div>
+        <div style="position:relative;height:${Math.max(220, allPlats.length * 26 + 60)}px;min-height:220px;width:100%;overflow:hidden"><canvas id="c-compare-inv" role="img" aria-label="Inversión por plataforma comparativa">Comparativa de inversión.</canvas></div>
         <div class="chart-source">Fuente: IAB Spain + estimaciones internas</div>
       </div>
       <div class="chart-card">
         <div class="chart-title">CPM medio por plataforma${infoTip('Coste medio por mil impresiones de cada plataforma. Comparable directamente.')}</div>
-        <div class="chart-sub">€ por mil impresiones</div>
-        <div style="position:relative;height:${Math.max(220, allPlats.length * 26 + 60)}px;min-height:220px"><canvas id="c-compare-cpm" role="img" aria-label="CPM medio por plataforma comparativa">Comparativa de CPM.</canvas></div>
+        <div class="chart-sub">€ por mil impresiones · tarifa media 2025</div>
+        <div style="position:relative;height:${Math.max(220, allPlats.length * 26 + 60)}px;min-height:220px;width:100%;overflow:hidden"><canvas id="c-compare-cpm" role="img" aria-label="CPM medio por plataforma comparativa">Comparativa de CPM.</canvas></div>
         <div class="chart-source">Fuente: Tarifas oficiales + análisis interno</div>
       </div>
     </div>
@@ -2690,8 +3022,8 @@ function renderCompare() {
     <div class="charts-row">
       <div class="chart-card full">
         <div class="chart-title">CPM vs Inversión · Cuadrante estratégico</div>
-        <div class="chart-sub">Cada burbuja representa una plataforma. Tamaño = alcance en hogares. Eje X = inversión total. Eje Y = CPM</div>
-        <div style="position:relative;height:380px;min-height:380px"><canvas id="c-compare-scatter" role="img" aria-label="Cuadrante CPM vs inversión por plataforma">Análisis comparativo de plataformas.</canvas></div>
+        <div class="chart-sub">Inversión 2025 (eje X) · CPM medio (eje Y) · Alcance hogares (tamaño burbuja)</div>
+        <div style="position:relative;height:380px;min-height:380px;width:100%;overflow:hidden"><canvas id="c-compare-scatter" role="img" aria-label="Cuadrante CPM vs inversión por plataforma">Análisis comparativo de plataformas.</canvas></div>
         <div class="chart-source">Fuente: Análisis interno · Cuadrante estratégico CTV España</div>
       </div>
     </div>
@@ -2737,7 +3069,7 @@ function renderCompareTable() {
     return `
       <tr>
         <td class="cell-name"><strong>${p.name}</strong></td>
-        <td><span class="tipo-pill" style="background:${p.tipoBg};color:${p.tipoTc}">${p.tipo}</span></td>
+        <td><span class="tipo-pill" style="background:${p.tipoBg};color:${p.tipoTc}">${tipoLabel(p.tipo)}</span></td>
         <td class="num"><strong>${p.inv}</strong> M€</td>
         <td class="num">${p.cpm} €</td>
         <td class="num">${p.alcance}</td>
@@ -2818,11 +3150,13 @@ function buildBubbleCompare(id, data) {
   const canvas = document.getElementById(id);
   if (!canvas) return;
   const parent = canvas.parentElement;
-  const W = (parent && parent.clientWidth > 10) ? parent.clientWidth : 600;
-  const H = (parent && parent.clientHeight > 10) ? parent.clientHeight : 380;
-  canvas.width = W; canvas.height = H;
-  canvas.style.width = W + 'px'; canvas.style.height = H + 'px';
+  const W = Math.max(200, (parent && parent.clientWidth > 10) ? parent.clientWidth : 600);
+  const H = Math.max(280, (parent && parent.clientHeight > 10) ? parent.clientHeight : 380);
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = W * dpr; canvas.height = H * dpr;
+  canvas.style.width = '100%'; canvas.style.height = H + 'px'; canvas.style.maxWidth = '100%';
   const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
 
   if (!data.length) return;
 
@@ -2921,8 +3255,8 @@ function renderAnunciantes() {
   document.getElementById('content').innerHTML = `
     <div class="page-intro">
       <div class="page-intro-text">
-        <h2>Top 20 anunciantes — España 2025</h2>
-        <p>Ranking de inversión publicitaria total y estimación de reparto en plataformas CTV. Fuente principal: Infoadex 2026 (ejercicio 2025), complementada con Kantar Media y Nielsen Ad Intel para el reparto CTV.</p>
+        <h2>Top 20 anunciantes — ene–dic 2025</h2>
+        <p>Ranking de inversión publicitaria total durante el año completo 2025 (ene–dic) y estimación de reparto en plataformas CTV. Fuente principal: Infoadex 2026 (ejercicio 2025), complementada con Kantar Media y Nielsen Ad Intel para el reparto CTV.</p>
       </div>
       <div class="page-intro-stat">
         <div class="big">${totalInv.toFixed(0)}<span style="font-size:18px"> M€</span></div>
@@ -2961,10 +3295,10 @@ function renderAnunciantes() {
             <th style="width:36px">#</th>
             <th>Anunciante</th>
             <th>Sector</th>
-            <th class="num">Inv. total</th>
+            <th class="num">Inv. total 2025</th>
             <th class="num">TV</th>
             <th class="num">Digital</th>
-            <th class="num">CTV est.</th>
+            <th class="num">CTV est. 2025</th>
             <th>Prioridad CTV</th>
           </tr>
         </thead>
@@ -2993,14 +3327,14 @@ function renderAnunciantes() {
     <div class="charts-row">
       <div class="chart-card${newCardClass('anun-chart-inv')}">
         <div class="chart-title">Inversión total por anunciante${infoTip('Inversión publicitaria total durante 2025 según Infoadex.')}${isNew('anun-chart-inv')}</div>
-        <div class="chart-sub">Top 20 · M€ · 2025</div>
-        <div style="position:relative;height:${Math.max(280, sorted.length * 24 + 60)}px"><canvas id="c-anun-inv" role="img" aria-label="Inversión por anunciante">Top 20 anunciantes por inversión.</canvas></div>
+        <div class="chart-sub">Top 20 · M€ · ene–dic 2025 · Fuente: Infoadex</div>
+        <div style="position:relative;height:${Math.max(280, sorted.length * 24 + 60)}px;width:100%;overflow:hidden"><canvas id="c-anun-inv" role="img" aria-label="Inversión por anunciante">Top 20 anunciantes por inversión.</canvas></div>
         <div class="chart-source">Fuente: Infoadex · Estudio anual 2026 (ejercicio 2025)</div>
       </div>
       <div class="chart-card">
         <div class="chart-title">Inversión por sector${infoTip('Agregado del Top 20 anunciantes por sector económico.')}</div>
-        <div class="chart-sub">Agregado del Top 20 · M€</div>
-        <div style="position:relative;height:${Math.max(280, sectorEntries.length * 32 + 60)}px"><canvas id="c-anun-sect" role="img" aria-label="Inversión por sector">Agregado Top 20 por sector.</canvas></div>
+        <div class="chart-sub">Agregado Top 20 anunciantes · M€ · ene–dic 2025</div>
+        <div style="position:relative;height:${Math.max(280, sectorEntries.length * 32 + 60)}px;width:100%;overflow:hidden"><canvas id="c-anun-sect" role="img" aria-label="Inversión por sector">Agregado Top 20 por sector.</canvas></div>
         <div class="chart-source">Fuente: Infoadex + análisis interno</div>
       </div>
     </div>
@@ -3008,8 +3342,8 @@ function renderAnunciantes() {
     <div class="charts-row">
       <div class="chart-card full">
         <div class="chart-title">CTV estimado · Top 20 anunciantes${infoTip('Estimación de inversión CTV por anunciante. Color indica prioridad comercial.')}</div>
-        <div class="chart-sub">Estimación de inversión CTV por anunciante (M€). Basado en Kantar Media + Nielsen Ad Intel + análisis interno.</div>
-        <div style="position:relative;height:${Math.max(320, sorted.length * 26 + 60)}px"><canvas id="c-anun-ctv" role="img" aria-label="CTV por anunciante">Inversión CTV estimada por anunciante.</canvas></div>
+        <div class="chart-sub">Estimación CTV por anunciante · M€ · ene–dic 2025 · Kantar Media + Nielsen Ad Intel</div>
+        <div style="position:relative;height:${Math.max(320, sorted.length * 26 + 60)}px;width:100%;overflow:hidden"><canvas id="c-anun-ctv" role="img" aria-label="CTV por anunciante">Inversión CTV estimada por anunciante.</canvas></div>
         <div class="chart-source">Fuente: Kantar Media + Nielsen Ad Intel + estimaciones internas</div>
       </div>
     </div>
@@ -3020,7 +3354,7 @@ function renderAnunciantes() {
         <thead>
           <tr>
             <th>Anunciante</th>
-            <th class="num">CTV est.</th>
+            <th class="num">CTV est. 2025</th>
             <th class="num">SVOD</th>
             <th class="num">AVOD</th>
             <th class="num">BVOD</th>
@@ -3332,35 +3666,35 @@ function renderSkyAnalysis() {
         </thead>
         <tbody>
           <tr style="background:rgba(0,100,255,0.05)">
-            <td class="cell-name"><strong>SkyShowtime</strong> <span class="tipo-pill" style="background:rgba(127,119,221,0.13);color:#383075;margin-left:6px">SVOD</span></td>
+            <td class="cell-name"><strong>SkyShowtime</strong> <span class="tipo-pill" style="background:rgba(127,119,221,0.13);color:#383075;margin-left:6px">SVOD Ads</span></td>
             <td class="num"><strong>16 M€</strong></td>
             <td class="num"><strong>14€</strong></td>
             <td class="num"><strong>~700K</strong></td>
             <td class="cell-comercializa"><strong style="color:var(--peak-blue)">Referencia. Catálogo Paramount + Universal + Sky exclusivo</strong></td>
           </tr>
           <tr>
-            <td class="cell-name"><strong>Netflix Ads</strong> <span class="tipo-pill" style="background:rgba(127,119,221,0.13);color:#383075;margin-left:6px">SVOD</span></td>
+            <td class="cell-name"><strong>Netflix Ads</strong> <span class="tipo-pill" style="background:rgba(127,119,221,0.13);color:#383075;margin-left:6px">SVOD Ads</span></td>
             <td class="num">41 M€</td>
             <td class="num">16€</td>
             <td class="num">8,7M</td>
             <td class="cell-comercializa">Líder absoluto en SVOD-Ads. SkyShowtime no compite en alcance, sí en precio y contenido nicho premium.</td>
           </tr>
           <tr>
-            <td class="cell-name"><strong>Prime Video Ads</strong> <span class="tipo-pill" style="background:rgba(127,119,221,0.13);color:#383075;margin-left:6px">SVOD</span></td>
+            <td class="cell-name"><strong>Prime Video Ads</strong> <span class="tipo-pill" style="background:rgba(127,119,221,0.13);color:#383075;margin-left:6px">SVOD Ads</span></td>
             <td class="num">28 M€</td>
             <td class="num">14€</td>
             <td class="num">7,8M</td>
             <td class="cell-comercializa">Ventaja única en retail data. SkyShowtime compensa con cine de estreno y contenido premium HBO-like.</td>
           </tr>
           <tr>
-            <td class="cell-name"><strong>Disney+ Ads</strong> <span class="tipo-pill" style="background:rgba(127,119,221,0.13);color:#383075;margin-left:6px">SVOD</span></td>
+            <td class="cell-name"><strong>Disney+ Ads</strong> <span class="tipo-pill" style="background:rgba(127,119,221,0.13);color:#383075;margin-left:6px">SVOD Ads</span></td>
             <td class="num">~12 M€</td>
             <td class="num">15€</td>
             <td class="num">~1,5M</td>
             <td class="cell-comercializa">Catálogo familiar (Marvel, Pixar). SkyShowtime más adulto, ideal para banca y automoción premium.</td>
           </tr>
           <tr>
-            <td class="cell-name"><strong>HBO Max</strong> <span class="tipo-pill" style="background:rgba(127,119,221,0.13);color:#383075;margin-left:6px">SVOD</span></td>
+            <td class="cell-name"><strong>HBO Max</strong> <span class="tipo-pill" style="background:rgba(127,119,221,0.13);color:#383075;margin-left:6px">SVOD Ads</span></td>
             <td class="num">~8 M€</td>
             <td class="num">15€</td>
             <td class="num">~900K</td>
@@ -3704,6 +4038,42 @@ function refreshData() {
 }
 
 // ─── INIT ─────────────────────────────────────────────────────────────────────
+
+// Territory state
+let currentTerritory = { code: 'ES', name: 'España', flag: '🇪🇸' };
+
+function toggleTerritory(event) {
+  if (event) event.stopPropagation();
+  const sel = document.getElementById('territory-selector');
+  const drop = document.getElementById('territory-dropdown');
+  if (!sel || !drop) return;
+  const isOpen = drop.classList.contains('open');
+  if (isOpen) {
+    drop.classList.remove('open');
+    sel.classList.remove('open');
+  } else {
+    drop.classList.add('open');
+    sel.classList.add('open');
+    // Close on outside click
+    setTimeout(() => {
+      document.addEventListener('click', closeTerritoryDropdown, { once: true });
+    }, 0);
+  }
+}
+
+function closeTerritoryDropdown() {
+  const sel = document.getElementById('territory-selector');
+  const drop = document.getElementById('territory-dropdown');
+  if (drop) drop.classList.remove('open');
+  if (sel) sel.classList.remove('open');
+}
+
+function selectTerritory(code, event) {
+  if (event) event.stopPropagation();
+  if (code !== 'ES') return; // only ES enabled for now
+  closeTerritoryDropdown();
+}
+
 const APP_PASSWORD = 'paramountmadrid';
 const AUTH_KEY = 'adsales-hub-auth';
 
